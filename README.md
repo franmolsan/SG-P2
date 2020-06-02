@@ -33,3 +33,14 @@ La aplicación que vamos a realizar va a ser un juego de construcciones (como el
 * Para borrar un objeto que hayamos cogido, usamos la tecla R.
 * En la GUI aparecerán los diversos objetos que podemos añadir a la escena (la biblioteca). Si pinchamos sobre uno, aparecerá en la escena.
 * Parte extra: se podrán “parar” los objetos (para que no le afecte la física) con la tecla P. Podemos activar/desactivar la música y cambiar de escenario desde la GUI.
+
+
+
+### Recursos
+
+* Biblioteca: (Three.js) + cannon.js (para las físicas) 
+* ejemplo muy interesante: http://schteppe.github.io/cannon.js/examples/threejs_fps.html 
+* documentacion: http://schteppe.github.io/cannon.js/docs/classes/AABB.html
+* modelos: http://www.cadnav.com/3d-models/model-40276.html
+* mas modelos: https://www.kooxpi.net/wavefront-obj/3d-coffee-mug/
+  * (buscando wavefront models)
