@@ -43,4 +43,4 @@ La aplicación que vamos a realizar va a ser un juego de construcciones (como el
 * documentacion: http://schteppe.github.io/cannon.js/docs/classes/AABB.html
 * modelos: http://www.cadnav.com/3d-models/model-40276.html
 * mas modelos: https://www.kooxpi.net/wavefront-obj/3d-coffee-mug/
-  *(buscando wavefront models)
+  * (buscando wavefront models)
