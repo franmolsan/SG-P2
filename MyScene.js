@@ -3,6 +3,15 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 
+var sphereBody, world;
+import { PointerLockControls } from './libs/PointerLockControls.js';
+
+var moveForward = false;
+var moveBackward = false;
+var moveLeft = false;
+var moveRight = false;
+var canJump = false;
+ 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
@@ -22,12 +31,17 @@ class MyScene extends THREE.Scene {
     // Tendremos una cámara con un control de movimiento con el ratón
     this.createCamera();
 
+    // Un suelo 
+    this.createGround ();
+
     // Y unos ejes. Imprescindibles para orientarnos sobre dónde están las cosas
     this.axis = new THREE.AxesHelper(5);
     this.add(this.axis);
 
-    this.nave = new Camino();
-    this.add(this.nave);
+   iniciarCanon();
+
+    var controls = new PointerLockControls( this.camera, document.body );
+    this.add(controls.getObject());
   }
 
   createCamera() {
@@ -36,7 +50,7 @@ class MyScene extends THREE.Scene {
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
     this.camera = new THREE.PerspectiveCamera(
-      45,
+      75,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
@@ -59,6 +73,27 @@ class MyScene extends THREE.Scene {
     this.cameraControl.panSpeed = 0.5;
     // Debe orbitar con respecto al punto de mira de la cámara
     this.cameraControl.target = look;
+  }
+
+  createGround () {
+    // El suelo es un Mesh, necesita una geometría y un material.
+    
+    // La geometría es una caja con muy poca altura
+    var geometryGround = new THREE.BoxGeometry ( window.innerWidth,0.2, window.innerWidth);
+    
+    // El material se hará con una textura de madera
+    var texture = new THREE.TextureLoader().load('../imgs/wood.jpg');
+    var materialGround = new THREE.MeshPhongMaterial ({map: texture});
+    
+    // Ya se puede construir el Mesh
+    var ground = new THREE.Mesh (geometryGround, materialGround);
+    
+    // Todas las figuras se crean centradas en el origen.
+    // El suelo lo bajamos la mitad de su altura para que el origen del mundo se quede en su lado superior
+    ground.position.y = -0.1;
+    
+    // Que no se nos olvide añadirlo a la escena, que en este caso es  this
+    this.add (ground);
   }
 
   createGUI() {
@@ -102,7 +137,7 @@ class MyScene extends THREE.Scene {
     // Si no se le da punto de mira, apuntará al (0,0,0) en coordenadas del mundo
     // En este caso se declara como   this.atributo   para que sea un atributo accesible desde otros métodos.
     this.spotLight = new THREE.SpotLight(0xffffff, 0.5);
-    this.spotLight.position.set(0, 60, 0);
+    this.spotLight.position.set(0, 300, 0);
     this.add(this.spotLight);
   }
 
@@ -164,9 +199,6 @@ class MyScene extends THREE.Scene {
     // Se actualiza la posición de la cámara según su controlador
     this.cameraControl.update();
 
-    this.nave.update();
-    //TWEEN.update();
-
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
     this.renderer.render(this, this.getCamera());
   }
@@ -180,14 +212,80 @@ $(function () {
   // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
   window.addEventListener("resize", () => scene.onWindowResize());
 
+  var onKeyDown = function ( event ) {
+
+    switch ( event.keyCode ) {
+
+      case 38: // up
+      case 87: // w
+        moveForward = true;
+        console.log("arriba")
+        break;
+
+      case 37: // left
+      case 65: // a
+        moveLeft = true;
+        break;
+
+      case 40: // down
+      case 83: // s
+        moveBackward = true;
+        break;
+
+      case 39: // right
+      case 68: // d
+        moveRight = true;
+        break;
+
+      case 32: // space
+        if ( canJump === true ) velocity.y += 350;
+        canJump = false;
+        break;
+
+    }
+
+  };
+
+  var onKeyUp = function ( event ) {
+
+    switch ( event.keyCode ) {
+
+      case 38: // up
+      case 87: // w
+        moveForward = false;
+        break;
+
+      case 37: // left
+      case 65: // a
+        moveLeft = false;
+        break;
+
+      case 40: // down
+      case 83: // s
+        moveBackward = false;
+        break;
+
+      case 39: // right
+      case 68: // d
+        moveRight = false;
+        break;
+
+    }
+
+  };
+
+  document.addEventListener( 'keydown', onKeyDown, false );
+  document.addEventListener( 'keyup', onKeyUp, false );
+
+
   // Que no se nos olvide, la primera visualización.
   scene.update();
 });
 
 function iniciarCanon() {
-
+/*
   // Crear el mundo
-  world = new CANON.World();
+  world = new CANNON.World();
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
 
@@ -230,5 +328,5 @@ function iniciarCanon() {
   groundBody.addShape(groundShape);
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
   world.addBody(groundBody);
-
+*/
 }
