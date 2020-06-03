@@ -6,8 +6,6 @@
 var sphereBody, world;
 import { PointerLockControls } from './libs/PointerLockControls.js';
 
-var controls;
-
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
@@ -37,10 +35,14 @@ class MyScene extends THREE.Scene {
     this.axis = new THREE.AxesHelper(5);
     this.add(this.axis);
 
-   iniciarCanon();
+    iniciarCanon();
 
-    controls = new PointerLockControls( this.camera, document.body );
-    this.add(controls.getObject());
+   // para controles y movimiento
+    this.controls = new PointerLockControls( this.camera, document.body );
+    this.add(this.controls.getObject());
+    this.velocity = new THREE.Vector3();
+    this.direction = new THREE.Vector3();
+    this.tiempoAnterior = performance.now();
   }
 
   createCamera() {
@@ -49,19 +51,25 @@ class MyScene extends THREE.Scene {
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
     this.camera = new THREE.PerspectiveCamera(
-      75,
+      100,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
     // También se indica dónde se coloca
-    this.camera.position.set(20, 10, 20);
+    this.camera.position.set(0, 30, 0);
+
+    /* GESTOR DE CAMARA */
+    /* hay que sustituir por raycasting */
     // Y hacia dónde mira
-    var look = new THREE.Vector3(0, 0, 0);
-    this.camera.lookAt(look);
+    //var look = new THREE.Vector3(0, 0, 0);
+
+    //this.camera.lookAt(look);
+
     this.add(this.camera);
 
     // Para el control de cámara usamos una clase que ya tiene implementado los movimientos de órbita
+    /*
     this.cameraControl = new THREE.TrackballControls(
       this.camera,
       this.renderer.domElement
@@ -72,6 +80,7 @@ class MyScene extends THREE.Scene {
     this.cameraControl.panSpeed = 0.5;
     // Debe orbitar con respecto al punto de mira de la cámara
     this.cameraControl.target = look;
+    */
   }
 
   createGround () {
@@ -196,8 +205,34 @@ class MyScene extends THREE.Scene {
     this.axis.visible = this.guiControls.axisOnOff;
 
     // Se actualiza la posición de la cámara según su controlador
-    this.cameraControl.update();
+    //this.cameraControl.update();
 
+    this.tiempo = performance.now();
+    var delta = (this.tiempo - this.tiempoAnterior) / 1000;
+
+    // deceleración
+    this.velocity.x -= this.velocity.x * 10.0 * delta;
+    this.velocity.z -= this.velocity.z * 10.0 * delta;
+		this.velocity.y -= 9.8 * 100.0 * delta; // gravedad - masa = 100
+
+    if (this.applicationMode === MyScene.moveForward){
+        this.velocity.z -=  400 * delta; // avance en el eje z
+        this.controls.moveForward(- this.velocity.z * delta)
+    }
+    else if (this.applicationMode === MyScene.moveBackward) {
+        this.velocity.z +=  400 * delta; // avance en el eje z
+        this.controls.moveForward(- this.velocity.z * delta)
+    }
+    else if (this.applicationMode === MyScene.moveRight) {
+        this.velocity.x -=  400 * delta; // avance en el eje z
+        this.controls.moveRight(- this.velocity.x * delta)
+    }
+    else if (this.applicationMode === MyScene.moveLeft) {
+        this.velocity.x +=  400 * delta; // avance en el eje z
+        this.controls.moveRight(- this.velocity.x * delta)
+    }
+
+    this.tiempoAnterior = this.tiempo;
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
     this.renderer.render(this, this.getCamera());
   }
