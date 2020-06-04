@@ -13,6 +13,9 @@ class MyScene extends THREE.Scene {
     // estado de la aplicación: no acción (0)
     this.applicationMode = MyScene.noAction;
 
+    // fondo
+    //this.background = new THREE.TextureLoader().load( "imgs/tierra.jpg" );
+
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
 
@@ -27,6 +30,8 @@ class MyScene extends THREE.Scene {
 
     // Tendremos una cámara con un control de movimiento con el ratón
     this.createCamera();
+
+    this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
     // Un suelo
     this.createGround ();
@@ -50,12 +55,7 @@ class MyScene extends THREE.Scene {
     //   El ángulo del campo de visión en grados sexagesimales
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
-    this.camera = new THREE.PerspectiveCamera(
-      100,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
+    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
     // También se indica dónde se coloca
     this.camera.position.set(0, 30, 0);
 
@@ -197,6 +197,10 @@ class MyScene extends THREE.Scene {
     // Si no existiera esta línea,  update()  se ejecutaría solo la primera vez.
     requestAnimationFrame(() => this.update());
 
+    this.raycaster.ray.origin.copy( this.controls.getObject().position );
+		this.raycaster.ray.origin.y -= 10;
+
+
     // Se actualizan los elementos de la escena para cada frame
     // Se actualiza la intensidad de la luz con lo que haya indicado el usuario en la gui
     this.spotLight.intensity = this.guiControls.lightIntensity;
@@ -213,24 +217,41 @@ class MyScene extends THREE.Scene {
     // deceleración
     this.velocity.x -= this.velocity.x * 10.0 * delta;
     this.velocity.z -= this.velocity.z * 10.0 * delta;
-		this.velocity.y -= 9.8 * 100.0 * delta; // gravedad - masa = 100
+
+    if (this.controls.getObject().position.y > 30){
+      	this.velocity.y -= 9.8 * 100.0 * delta; // gravedad - masa = 100
+        if (this.applicationMode === MyScene.jumping){
+          this.applicationMode = MyScene.noAction;
+        }
+    }
+    else {
+      this.velocity.y = 0;
+    }
+
 
     if (this.applicationMode === MyScene.moveForward){
         this.velocity.z -=  400 * delta; // avance en el eje z
         this.controls.moveForward(- this.velocity.z * delta)
     }
-    else if (this.applicationMode === MyScene.moveBackward) {
+    else if (this.applicationMode === MyScene.moveBackward){
         this.velocity.z +=  400 * delta; // avance en el eje z
         this.controls.moveForward(- this.velocity.z * delta)
     }
-    else if (this.applicationMode === MyScene.moveRight) {
+    else if (this.applicationMode === MyScene.moveRight){
         this.velocity.x -=  400 * delta; // avance en el eje z
         this.controls.moveRight(- this.velocity.x * delta)
     }
-    else if (this.applicationMode === MyScene.moveLeft) {
+    else if (this.applicationMode === MyScene.moveLeft){
         this.velocity.x +=  400 * delta; // avance en el eje z
         this.controls.moveRight(- this.velocity.x * delta)
     }
+    else if (this.applicationMode === MyScene.jumping){
+      this.velocity.y += 400 ;
+    }
+
+    this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
+
+
 
     this.tiempoAnterior = this.tiempo;
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
@@ -245,10 +266,14 @@ MyScene.moveForward = 1;
 MyScene.moveBackward = 2;
 MyScene.moveLeft = 3;
 MyScene.moveRight = 4;
-MyScene.canJump = 5;
+MyScene.jumping = 5;
 
 /// La función   main
 $(function () {
+
+  var blocker = document.getElementById( 'blocker' );
+  var instructions = document.getElementById( 'instructions' );
+
   // Se instancia la escena pasándole el  div  que se ha creado en el html para visualizar
   var scene = new MyScene("#WebGL-output");
 
@@ -260,40 +285,43 @@ $(function () {
     // la tecla que ha pulsado el usuario
     var tecla = event.which || event.keyCode;
 
-    if (scene.applicationMode === MyScene.noAction){
+
       switch (tecla) {
 
         case 38: // up
         case 87: // w
-          scene.applicationMode = MyScene.moveForward;
-          console.log("arriba")
+          if (scene.applicationMode != MyScene.moveBackward){
+            scene.applicationMode = MyScene.moveForward;
+          }
           break;
 
         case 37: // left
         case 65: // a
-          scene.applicationMode = MyScene.moveLeft;
-          console.log("izq")
+          if (scene.applicationMode != MyScene.moveRight){
+            scene.applicationMode = MyScene.moveLeft;
+          }
           break;
 
         case 40: // down
         case 83: // s
-          scene.applicationMode = MyScene.moveBackward;
-          console.log("atras")
+          if (scene.applicationMode != MyScene.moveForward){
+            scene.applicationMode = MyScene.moveBackward;
+          }
           break;
 
         case 39: // right
         case 68: // d
-          scene.applicationMode = MyScene.moveRight;
-          console.log("dcha")
+          if (scene.applicationMode != MyScene.moveLeft){
+            scene.applicationMode = MyScene.moveRight;
+          }
           break;
 
         case 32: // space
-          //if ( canJump === true ) velocity.y += 350;
-          console.log("salto")
-          //scene.applicationMode = MyScene.canJump;
+          if ( scene.applicationMode != MyScene.jumping ){
+            scene.applicationMode = MyScene.jumping;
+          }
           break;
       }
-    }
 
   };
 
@@ -336,6 +364,26 @@ $(function () {
 
   document.addEventListener( 'keydown', event => onKeyDown(event), false );
   document.addEventListener( 'keyup',  event => onKeyUp(event), false );
+
+  instructions.addEventListener( 'click', function () {
+
+    scene.controls.lock();
+
+  }, false );
+
+  scene.controls.addEventListener( 'lock', function () {
+
+    instructions.style.display = 'none';
+    blocker.style.display = 'none';
+
+  } );
+
+  scene.controls.addEventListener( 'unlock', function () {
+
+    blocker.style.display = 'block';
+    instructions.style.display = '';
+
+  } );
 
   // Que no se nos olvide, la primera visualización.
   scene.update();
