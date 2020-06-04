@@ -3,9 +3,8 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 
-var sphereBody, world;
-import { PointerLockControls } from './libs/PointerLockControls.js';
-
+import { PointerLockControls } from './libs/PointerLockControls2.js';
+var sphereBody;
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
@@ -40,14 +39,40 @@ class MyScene extends THREE.Scene {
     this.axis = new THREE.AxesHelper(5);
     this.add(this.axis);
 
-    iniciarCanon();
+    this.world = iniciarCanon();
+
+    // Add boxes
+    var material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
+    var halfExtents = new CANNON.Vec3(15,15,15);
+    var boxShape = new CANNON.Box(halfExtents);
+    var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+
+    this.boxes = [];
+    this.boxMeshes = [];
+    for(var i=0; i<7; i++){
+        var x = (Math.random()-0.5)*500;
+        var y = 15 + (Math.random())*50;
+        var z = (Math.random()-0.5)*500;
+        var boxBody = new CANNON.Body({ mass: 5 });
+        boxBody.addShape(boxShape);
+        var boxMesh = new THREE.Mesh( boxGeometry, material );
+        this.world.addBody(boxBody);
+        this.add(boxMesh);
+        boxBody.position.set(x,y,z);
+        boxMesh.position.set(x,y,z);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+        this.boxes.push(boxBody);
+        this.boxMeshes.push(boxMesh);
+    }
 
    // para controles y movimiento
-    this.controls = new PointerLockControls( this.camera, document.body );
+    this.controls = new PointerLockControls( this.camera, sphereBody );
     this.add(this.controls.getObject());
+    this.VELOCIDAD_PERSONAJE = 1000;
     this.velocity = new THREE.Vector3();
     this.direction = new THREE.Vector3();
-    this.tiempoAnterior = performance.now();
+    this.tiempoAnterior = Date.now();
   }
 
   createCamera() {
@@ -211,7 +236,7 @@ class MyScene extends THREE.Scene {
     // Se actualiza la posición de la cámara según su controlador
     //this.cameraControl.update();
 
-    this.tiempo = performance.now();
+    this.tiempo = Date.now();
     var delta = (this.tiempo - this.tiempoAnterior) / 1000;
 
     // deceleración
@@ -229,33 +254,47 @@ class MyScene extends THREE.Scene {
     }
 
 
+
+    /*
     if (this.applicationMode === MyScene.moveForward){
-        this.velocity.z -=  400 * delta; // avance en el eje z
+        this.velocity.z -=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
         this.controls.moveForward(- this.velocity.z * delta)
     }
     else if (this.applicationMode === MyScene.moveBackward){
-        this.velocity.z +=  400 * delta; // avance en el eje z
+        this.velocity.z +=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
         this.controls.moveForward(- this.velocity.z * delta)
     }
     else if (this.applicationMode === MyScene.moveRight){
-        this.velocity.x -=  400 * delta; // avance en el eje z
+        this.velocity.x -=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
         this.controls.moveRight(- this.velocity.x * delta)
     }
     else if (this.applicationMode === MyScene.moveLeft){
-        this.velocity.x +=  400 * delta; // avance en el eje z
+        this.velocity.x +=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
         this.controls.moveRight(- this.velocity.x * delta)
     }
     else if (this.applicationMode === MyScene.jumping){
-      this.velocity.y += 400 ;
+      this.velocity.y += this.VELOCIDAD_PERSONAJE/3 ;
     }
 
     this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
+    */
+
+    //this.controls.update( delta );
 
 
 
-    this.tiempoAnterior = this.tiempo;
+
+    // Update box positions
+    for(var i=0; i<this.boxes.length; i++){
+        this.boxMeshes[i].position.copy(this.boxes[i].position);
+        this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
+    }
+
+    this.controls.update( delta );
+
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
     this.renderer.render(this, this.getCamera());
+    this.tiempoAnterior = this.tiempo;
   }
 }
 
@@ -280,45 +319,126 @@ $(function () {
   // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
   window.addEventListener("resize", () => scene.onWindowResize());
 
+  var blocker = document.getElementById( 'blocker' );
+var instructions = document.getElementById( 'instructions' );
+
+var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
+if ( havePointerLock ) {
+
+    var element = document.body;
+
+    var pointerlockchange = function ( event ) {
+
+        if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+
+            scene.controls.enabled = true;
+
+            blocker.style.display = 'none';
+
+        } else {
+
+            scene.controls.enabled = false;
+
+            blocker.style.display = '-webkit-box';
+            blocker.style.display = '-moz-box';
+            blocker.style.display = 'box';
+
+            instructions.style.display = '';
+
+        }
+
+    }
+
+    var pointerlockerror = function ( event ) {
+        instructions.style.display = '';
+    }
+
+    // Hook pointer lock state change events
+    document.addEventListener( 'pointerlockchange', pointerlockchange, false );
+    document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
+    document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+
+    document.addEventListener( 'pointerlockerror', pointerlockerror, false );
+    document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
+    document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+
+    instructions.addEventListener( 'click', function ( event ) {
+        instructions.style.display = 'none';
+
+        // Ask the browser to lock the pointer
+        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+        if ( /Firefox/i.test( navigator.userAgent ) ) {
+
+            var fullscreenchange = function ( event ) {
+
+                if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+
+                    document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                    document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+
+                    element.requestPointerLock();
+                }
+
+            }
+
+            document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+            document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+
+            element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+
+            element.requestFullscreen();
+
+        } else {
+
+            element.requestPointerLock();
+
+        }
+
+    }, false );
+
+} else {
+
+    instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+
+}
+/*
   function onKeyDown ( event ) {
 
     // la tecla que ha pulsado el usuario
     var tecla = event.which || event.keyCode;
-
+    var delta = (this.tiempo - this.tiempoAnterior) / 1000;
 
       switch (tecla) {
 
         case 38: // up
         case 87: // w
-          if (scene.applicationMode != MyScene.moveBackward){
-            scene.applicationMode = MyScene.moveForward;
-          }
+          scene.velocity.z -=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
+          scene.controls.moveForward(- scene.velocity.z * delta)
           break;
 
         case 37: // left
         case 65: // a
-          if (scene.applicationMode != MyScene.moveRight){
-            scene.applicationMode = MyScene.moveLeft;
-          }
+        scene.velocity.x -=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
+        scene.controls.moveRight(- scene.velocity.x * delta)
           break;
 
         case 40: // down
         case 83: // s
-          if (scene.applicationMode != MyScene.moveForward){
-            scene.applicationMode = MyScene.moveBackward;
-          }
+        scene.velocity.z +=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
+        scene.controls.moveForward(- scene.velocity.z * delta)
           break;
 
         case 39: // right
         case 68: // d
-          if (scene.applicationMode != MyScene.moveLeft){
-            scene.applicationMode = MyScene.moveRight;
-          }
+        scene.velocity.x +=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
+        scene.controls.moveRight(- scene.velocity.x * delta)
           break;
 
         case 32: // space
           if ( scene.applicationMode != MyScene.jumping ){
-            scene.applicationMode = MyScene.jumping;
+            scene.velocity.y += scene.VELOCIDAD_PERSONAJE/3 ;
           }
           break;
       }
@@ -361,36 +481,42 @@ $(function () {
     }
 
   };
-
+  */
+/*
   document.addEventListener( 'keydown', event => onKeyDown(event), false );
   document.addEventListener( 'keyup',  event => onKeyUp(event), false );
+*/
 
+/*
   instructions.addEventListener( 'click', function () {
 
     scene.controls.lock();
 
   }, false );
 
-  scene.controls.addEventListener( 'lock', function () {
+
+  scene.controls.getObject().addEventListener( 'lock', function () {
 
     instructions.style.display = 'none';
     blocker.style.display = 'none';
 
   } );
 
-  scene.controls.addEventListener( 'unlock', function () {
+  scene.controls.getObject().addEventListener( 'unlock', function () {
 
     blocker.style.display = 'block';
     instructions.style.display = '';
 
   } );
+*/
 
   // Que no se nos olvide, la primera visualización.
   scene.update();
 });
 
 function iniciarCanon() {
-/*
+
+  var world;
   // Crear el mundo
   world = new CANNON.World();
   world.quatNormalizeSkip = 0;
@@ -413,16 +539,16 @@ function iniciarCanon() {
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create a slippery material (friction coefficient = 0.0)
-  physicsMaterial = new CANNON.Material("slipperyMaterial");
+  var physicsMaterial = new CANNON.Material("slipperyMaterial");
   var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial, physicsMaterial,
                                                           0.0, // friction coefficient
                                                           0.3);  // restitution
-  // We must add the contact materials to the world
+  // We must add the contact materials to the this.world
   world.addContactMaterial(physicsContactMaterial);
 
   // Create a sphere
   var mass = 5, radius = 1.3;
-  sphereShape = new CANNON.Sphere(radius);
+  var sphereShape = new CANNON.Sphere(radius);
   sphereBody = new CANNON.Body({ mass: mass });
   sphereBody.addShape(sphereShape);
   sphereBody.position.set(0,5,0);
@@ -435,5 +561,6 @@ function iniciarCanon() {
   groundBody.addShape(groundShape);
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
   world.addBody(groundBody);
-*/
+
+  return world;
 }
