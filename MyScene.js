@@ -137,6 +137,10 @@ class MyScene extends THREE.Scene {
     // El suelo lo bajamos la mitad de su altura para que el origen del mundo se quede en su lado superior
     ground.position.y = -0.1;
 
+    ground.castShadow = true;
+    ground.receiveShadow = true;
+
+
     // Que no se nos olvide añadirlo a la escena, que en este caso es  this
     this.add(ground);
   }
@@ -283,9 +287,8 @@ class MyScene extends THREE.Scene {
    var mass = 80;
    var radio = 15;
    var sphereShape = new CANNON.Sphere(radio);
-   //var sphereShape = new CANNON.Sphere(radius);
-   this.sphereBody = new CANNON.Body({ mass: mass });
-   this.sphereBody.addShape(sphereShape);
+   this.sphereBody = new CANNON.Body({ mass: mass , shape: sphereShape});
+   //this.sphereBody.addShape(sphereShape);
    this.sphereBody.position.set(0, 30, 0);
    this.sphereBody.linearDamping = 0.9;
    this.world.addBody(this.sphereBody);
@@ -317,7 +320,7 @@ class MyScene extends THREE.Scene {
     this.axis.visible = this.guiControls.axisOnOff;
 
 
-    this.tiempo = Date.now();
+    //this.tiempo = Date.now();
 
     if (this.controls.enabled) {
       this.world.step(1 / 60);

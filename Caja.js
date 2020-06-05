@@ -13,8 +13,7 @@ class Caja extends THREE.Object3D {
       halfExtents.z * 2
     );
 
-    this.body= new CANNON.Body({ mass: 10 });
-    this.body.addShape(boxShape);
+    this.body= new CANNON.Body({ mass: 10, shape: boxShape });
     this.mesh = new THREE.Mesh(boxGeometry, material);
 
     this.body.position.set(x, y, z);

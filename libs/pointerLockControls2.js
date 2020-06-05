@@ -1,7 +1,7 @@
 var PointerLockControls = function ( scene, camera, cannonBody ) {
 
     var eyeYPos = 30; // eyes are 2 meters above the ground
-    var velocityFactor = 50;
+    var velocityFactor = 10;
     var jumpVelocity = 200;
     var scope = this;
 
@@ -84,7 +84,8 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
 
             case 32: // space
                 if ( canJump === true ){
-                    velocity.y = jumpVelocity;
+                    velocity.y += jumpVelocity;
+
                 }
                 canJump = false;
                 break;
@@ -140,7 +141,6 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
     var inputVelocity = new THREE.Vector3();
     var euler = new THREE.Euler();
     this.update = function ( delta ) {
-
         if ( scope.enabled === false ) return;
 
         delta *= 0.1;
@@ -151,14 +151,14 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
             inputVelocity.z = -velocityFactor * delta;
         }
         if ( moveBackward ){
-            inputVelocity.z = velocityFactor * delta;
+            inputVelocity.z += velocityFactor * delta;
         }
 
         if ( moveLeft ){
-            inputVelocity.x = -velocityFactor * delta;
+            inputVelocity.x += -velocityFactor * delta;
         }
         if ( moveRight ){
-            inputVelocity.x = velocityFactor * delta;
+            inputVelocity.x += velocityFactor * delta;
         }
 
         // Convert velocity to world coordinates
@@ -172,6 +172,8 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
         // Add to the object
         velocity.x += inputVelocity.x;
         velocity.z += inputVelocity.z;
+
+        console.log(velocity.y);
 
         yawObject.position.copy(cannonBody.position);
     };
