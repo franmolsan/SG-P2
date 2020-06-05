@@ -3,7 +3,7 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 
-import { PointerLockControls2 } from './libs/PointerLockControls2.js';
+import { PointerLockControls2 } from './libs/pointerLockControls2.js';
 var sphereBody;
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
