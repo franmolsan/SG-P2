@@ -3,7 +3,7 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 
-import { PointerLockControls2 } from './libs/pointerLockControls2.js';
+import { PointerLockControls2 } from "./libs/pointerLockControls2.js";
 var sphereBody;
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -30,10 +30,15 @@ class MyScene extends THREE.Scene {
     // Tendremos una cámara con un control de movimiento con el ratón
     this.createCamera();
 
-    this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+    this.raycaster = new THREE.Raycaster(
+      new THREE.Vector3(),
+      new THREE.Vector3(0, -1, 0),
+      0,
+      10
+    );
 
     // Un suelo
-    this.createGround ();
+    this.createGround();
 
     // Y unos ejes. Imprescindibles para orientarnos sobre dónde están las cosas
     this.axis = new THREE.AxesHelper(5);
@@ -42,32 +47,36 @@ class MyScene extends THREE.Scene {
     this.world = iniciarCanon();
 
     // Add boxes
-    var material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
-    var halfExtents = new CANNON.Vec3(10,10,10);
+    var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
+    var halfExtents = new CANNON.Vec3(10, 10, 10);
     var boxShape = new CANNON.Box(halfExtents);
-    var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+    var boxGeometry = new THREE.BoxGeometry(
+      halfExtents.x * 2,
+      halfExtents.y * 2,
+      halfExtents.z * 2
+    );
 
     this.boxes = [];
     this.boxMeshes = [];
-    for(var i=0; i<7; i++){
-        var x = 100;
-        var y = 15 + (i*50);
-        var z = 100;
-        var boxBody = new CANNON.Body({ mass: 10 });
-        boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh( boxGeometry, material );
-        this.world.addBody(boxBody);
-        this.add(boxMesh);
-        boxBody.position.set(x,y,z);
-        boxMesh.position.set(x,y,z);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-        this.boxes.push(boxBody);
-        this.boxMeshes.push(boxMesh);
+    for (var i = 0; i < 7; i++) {
+      var x = 100;
+      var y = 15 + i * 50;
+      var z = 100;
+      var boxBody = new CANNON.Body({ mass: 10 });
+      boxBody.addShape(boxShape);
+      var boxMesh = new THREE.Mesh(boxGeometry, material);
+      this.world.addBody(boxBody);
+      this.add(boxMesh);
+      boxBody.position.set(x, y, z);
+      boxMesh.position.set(x, y, z);
+      boxMesh.castShadow = true;
+      boxMesh.receiveShadow = true;
+      this.boxes.push(boxBody);
+      this.boxMeshes.push(boxMesh);
     }
 
-   // para controles y movimiento
-    this.controls = new PointerLockControls2( this.camera, sphereBody );
+    // para controles y movimiento
+    this.controls = new PointerLockControls2(this.camera, sphereBody);
     this.add(this.controls.getObject());
     this.VELOCIDAD_PERSONAJE = 1000;
     this.velocity = new THREE.Vector3();
@@ -80,7 +89,12 @@ class MyScene extends THREE.Scene {
     //   El ángulo del campo de visión en grados sexagesimales
     //   La razón de aspecto ancho/alto
     //   Los planos de recorte cercano y lejano
-    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+    this.camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      1,
+      1000
+    );
     // También se indica dónde se coloca
     this.camera.position.set(0, 0, 0);
 
@@ -108,25 +122,31 @@ class MyScene extends THREE.Scene {
     */
   }
 
-  createGround () {
+  createGround() {
     // El suelo es un Mesh, necesita una geometría y un material.
 
     // La geometría es una caja con muy poca altura
-    var geometryGround = new THREE.BoxGeometry ( window.innerWidth,0.2, window.innerWidth);
+    var geometryGround = new THREE.BoxGeometry(
+      window.innerWidth,
+      0.2,
+      window.innerWidth
+    );
 
     // El material se hará con una textura de madera
-    var texture = new THREE.TextureLoader().load('imgs/textura-ajedrezada-grande.jpg');
-    var materialGround = new THREE.MeshPhongMaterial ({map: texture});
+    var texture = new THREE.TextureLoader().load(
+      "imgs/textura-ajedrezada-grande.jpg"
+    );
+    var materialGround = new THREE.MeshPhongMaterial({ map: texture });
 
     // Ya se puede construir el Mesh
-    var ground = new THREE.Mesh (geometryGround, materialGround);
+    var ground = new THREE.Mesh(geometryGround, materialGround);
 
     // Todas las figuras se crean centradas en el origen.
     // El suelo lo bajamos la mitad de su altura para que el origen del mundo se quede en su lado superior
     ground.position.y = -0.1;
 
     // Que no se nos olvide añadirlo a la escena, que en este caso es  this
-    this.add (ground);
+    this.add(ground);
   }
 
   createGUI() {
@@ -222,9 +242,8 @@ class MyScene extends THREE.Scene {
     // Si no existiera esta línea,  update()  se ejecutaría solo la primera vez.
     requestAnimationFrame(() => this.update());
 
-    this.raycaster.ray.origin.copy( this.controls.getObject().position );
-		this.raycaster.ray.origin.y -= 10;
-
+    this.raycaster.ray.origin.copy(this.controls.getObject().position);
+    this.raycaster.ray.origin.y -= 10;
 
     // Se actualizan los elementos de la escena para cada frame
     // Se actualiza la intensidad de la luz con lo que haya indicado el usuario en la gui
@@ -238,7 +257,7 @@ class MyScene extends THREE.Scene {
 
     this.tiempo = Date.now();
     var delta = (this.tiempo - this.tiempoAnterior) / 1000;
-/*
+    /*
     // deceleración
     this.velocity.x -= this.velocity.x * 10.0 * delta;
     this.velocity.z -= this.velocity.z * 10.0 * delta;
@@ -253,7 +272,6 @@ class MyScene extends THREE.Scene {
       this.velocity.y = 0;
     }
 */
-
 
     /*
     if (this.applicationMode === MyScene.moveForward){
@@ -281,19 +299,17 @@ class MyScene extends THREE.Scene {
 
     //this.controls.update( delta );
 
-
-    if(this.controls.enabled){
-      this.world.step(1/60);
+    if (this.controls.enabled) {
+      this.world.step(1 / 60);
 
       // Update box positions
-      for(var i=0; i<this.boxes.length; i++){
-          this.boxMeshes[i].position.copy(this.boxes[i].position);
-          this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
+      for (var i = 0; i < this.boxes.length; i++) {
+        this.boxMeshes[i].position.copy(this.boxes[i].position);
+        this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
       }
     }
 
-
-    this.controls.update( Date.now() - this.tiempo );
+    this.controls.update(Date.now() - this.tiempo);
     //this.controls.update( delta );
 
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
@@ -313,9 +329,8 @@ MyScene.jumping = 5;
 
 /// La función   main
 $(function () {
-
-  var blocker = document.getElementById( 'blocker' );
-  var instructions = document.getElementById( 'instructions' );
+  var blocker = document.getElementById("blocker");
+  var instructions = document.getElementById("instructions");
 
   // Se instancia la escena pasándole el  div  que se ha creado en el html para visualizar
   var scene = new MyScene("#WebGL-output");
@@ -323,91 +338,136 @@ $(function () {
   // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
   window.addEventListener("resize", () => scene.onWindowResize());
 
-  var blocker = document.getElementById( 'blocker' );
-var instructions = document.getElementById( 'instructions' );
+  var blocker = document.getElementById("blocker");
+  var instructions = document.getElementById("instructions");
 
-var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+  var havePointerLock =
+    "pointerLockElement" in document ||
+    "mozPointerLockElement" in document ||
+    "webkitPointerLockElement" in document;
 
-if ( havePointerLock ) {
-
+  if (havePointerLock) {
     var element = document.body;
 
-    var pointerlockchange = function ( event ) {
+    var pointerlockchange = function (event) {
+      if (
+        document.pointerLockElement === element ||
+        document.mozPointerLockElement === element ||
+        document.webkitPointerLockElement === element
+      ) {
+        scene.controls.enabled = true;
 
-        if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+        blocker.style.display = "none";
+      } else {
+        scene.controls.enabled = false;
 
-            scene.controls.enabled = true;
+        blocker.style.display = "-webkit-box";
+        blocker.style.display = "-moz-box";
+        blocker.style.display = "box";
 
-            blocker.style.display = 'none';
+        instructions.style.display = "";
+      }
+    };
 
-        } else {
-
-            scene.controls.enabled = false;
-
-            blocker.style.display = '-webkit-box';
-            blocker.style.display = '-moz-box';
-            blocker.style.display = 'box';
-
-            instructions.style.display = '';
-
-        }
-
-    }
-
-    var pointerlockerror = function ( event ) {
-        instructions.style.display = '';
-    }
+    var pointerlockerror = function (event) {
+      instructions.style.display = "";
+    };
 
     // Hook pointer lock state change events
-    document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-    document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-    document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+    document.addEventListener("pointerlockchange", pointerlockchange, false);
+    document.addEventListener("mozpointerlockchange", pointerlockchange, false);
+    document.addEventListener(
+      "webkitpointerlockchange",
+      pointerlockchange,
+      false
+    );
 
-    document.addEventListener( 'pointerlockerror', pointerlockerror, false );
-    document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
-    document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+    document.addEventListener("pointerlockerror", pointerlockerror, false);
+    document.addEventListener("mozpointerlockerror", pointerlockerror, false);
+    document.addEventListener(
+      "webkitpointerlockerror",
+      pointerlockerror,
+      false
+    );
 
-    instructions.addEventListener( 'click', function ( event ) {
-        instructions.style.display = 'none';
+    instructions.addEventListener(
+      "click",
+      function (event) {
+        instructions.style.display = "none";
 
         // Ask the browser to lock the pointer
-        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+        element.requestPointerLock =
+          element.requestPointerLock ||
+          element.mozRequestPointerLock ||
+          element.webkitRequestPointerLock;
 
-        if ( /Firefox/i.test( navigator.userAgent ) ) {
+        if (/Firefox/i.test(navigator.userAgent)) {
+          var fullscreenchange = function (event) {
+            if (
+              document.fullscreenElement === element ||
+              document.mozFullscreenElement === element ||
+              document.mozFullScreenElement === element
+            ) {
+              document.removeEventListener(
+                "fullscreenchange",
+                fullscreenchange
+              );
+              document.removeEventListener(
+                "mozfullscreenchange",
+                fullscreenchange
+              );
 
-            var fullscreenchange = function ( event ) {
-
-                if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-
-                    document.removeEventListener( 'fullscreenchange', fullscreenchange );
-                    document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-
-                    element.requestPointerLock();
-                }
-
+              element.requestPointerLock();
             }
+          };
 
-            document.addEventListener( 'fullscreenchange', fullscreenchange, false );
-            document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+          document.addEventListener(
+            "fullscreenchange",
+            fullscreenchange,
+            false
+          );
+          document.addEventListener(
+            "mozfullscreenchange",
+            fullscreenchange,
+            false
+          );
 
-            element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+          element.requestFullscreen =
+            element.requestFullscreen ||
+            element.mozRequestFullscreen ||
+            element.mozRequestFullScreen ||
+            element.webkitRequestFullscreen;
 
-            element.requestFullscreen();
-
+          element.requestFullscreen();
         } else {
-
-            element.requestPointerLock();
-
+          element.requestPointerLock();
         }
+      },
+      false
+    );
+  } else {
+    instructions.innerHTML =
+      "Your browser doesn't seem to support Pointer Lock API";
+  }
 
-    }, false );
+  // debe ir en la escena
+  onDocumentMouseDown(event){
+    var mouse = new THREE.Vector2();
+    mouse.x = (event. clientX / window.innerWidth) * 2 - 1;
+    mouse.y = 1 - 2* (event.clientY /window.innerHeight);
 
-} else {
+    var raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse,this.camera);
 
-    instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+    var pickedObjects = raycaster.instersectObjects (this.pickableObjects, true);
 
-}
-/*
+    if (pickedObjects.length > 0){
+      var selectedObject = pickedObjects[0].object;
+      var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
+      //...
+    }
+  }
+  /*
   function onKeyDown ( event ) {
 
     // la tecla que ha pulsado el usuario
@@ -486,12 +546,12 @@ if ( havePointerLock ) {
 
   };
   */
-/*
+  /*
   document.addEventListener( 'keydown', event => onKeyDown(event), false );
   document.addEventListener( 'keyup',  event => onKeyUp(event), false );
 */
 
-/*
+  /*
   instructions.addEventListener( 'click', function () {
 
     scene.controls.lock();
@@ -519,11 +579,10 @@ if ( havePointerLock ) {
 });
 
 function iniciarCanon() {
-
   var world;
   // Crear el mundo
   world = new CANNON.World();
-  world.gravity.set(0,-100,0);
+  world.gravity.set(0, -100, 0);
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
 
@@ -535,19 +594,20 @@ function iniciarCanon() {
   solver.iterations = 7;
   solver.tolerance = 0.1;
   var split = true;
-  if(split)
-      world.solver = new CANNON.SplitSolver(solver);
-  else
-      world.solver = solver;
+  if (split) world.solver = new CANNON.SplitSolver(solver);
+  else world.solver = solver;
 
   //world.gravity.set(0,-50,0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create a slippery material (friction coefficient = 0.0)
   var physicsMaterial = new CANNON.Material();
-  var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial, physicsMaterial,
-                                                          0.0, // friction coefficient
-                                                          0.3);  // restitution
+  var physicsContactMaterial = new CANNON.ContactMaterial(
+    physicsMaterial,
+    physicsMaterial,
+    0.0, // friction coefficient
+    0.3
+  ); // restitution
   // We must add the contact materials to the this.world
   world.addContactMaterial(physicsContactMaterial);
 
@@ -558,7 +618,7 @@ function iniciarCanon() {
   //var sphereShape = new CANNON.Sphere(radius);
   sphereBody = new CANNON.Body({ mass: mass });
   sphereBody.addShape(sphereShape);
-  sphereBody.position.set(0,30,0);
+  sphereBody.position.set(0, 30, 0);
   sphereBody.linearDamping = 0.9;
   world.addBody(sphereBody);
 
@@ -566,7 +626,10 @@ function iniciarCanon() {
   var groundShape = new CANNON.Plane();
   var groundBody = new CANNON.Body({ mass: 0 });
   groundBody.addShape(groundShape);
-  groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+  groundBody.quaternion.setFromAxisAngle(
+    new CANNON.Vec3(1, 0, 0),
+    -Math.PI / 2
+  );
   world.addBody(groundBody);
 
   return world;
