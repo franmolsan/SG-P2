@@ -2,13 +2,13 @@
 /**
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
+import { PointerLockControls } from "./libs/pointerLockControls2.js";
 
-import { PointerLockControls2 } from "./libs/pointerLockControls2.js";
-var sphereBody;
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
 
+    this.sphereBody;
     // estado de la aplicación: no acción (0)
     this.applicationMode = MyScene.noAction;
 
@@ -30,13 +30,6 @@ class MyScene extends THREE.Scene {
     // Tendremos una cámara con un control de movimiento con el ratón
     this.createCamera();
 
-    this.raycaster = new THREE.Raycaster(
-      new THREE.Vector3(),
-      new THREE.Vector3(0, -1, 0),
-      0,
-      10
-    );
-
     // Un suelo
     this.createGround();
 
@@ -44,44 +37,46 @@ class MyScene extends THREE.Scene {
     this.axis = new THREE.AxesHelper(5);
     this.add(this.axis);
 
-    this.world = iniciarCanon();
+    this.iniciarCanon();
 
     // Add boxes
-    var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-    var halfExtents = new CANNON.Vec3(10, 10, 10);
-    var boxShape = new CANNON.Box(halfExtents);
-    var boxGeometry = new THREE.BoxGeometry(
-      halfExtents.x * 2,
-      halfExtents.y * 2,
-      halfExtents.z * 2
-    );
-
     this.boxes = [];
     this.boxMeshes = [];
-    for (var i = 0; i < 7; i++) {
-      var x = 100;
-      var y = 15 + i * 50;
-      var z = 100;
-      var boxBody = new CANNON.Body({ mass: 10 });
-      boxBody.addShape(boxShape);
-      var boxMesh = new THREE.Mesh(boxGeometry, material);
-      this.world.addBody(boxBody);
-      this.add(boxMesh);
-      boxBody.position.set(x, y, z);
-      boxMesh.position.set(x, y, z);
-      boxMesh.castShadow = true;
-      boxMesh.receiveShadow = true;
-      this.boxes.push(boxBody);
-      this.boxMeshes.push(boxMesh);
-    }
+    this.pickableObjects = []
+    this.createBoxes(4);
+    this.createBoxes(2);
+    this.createBoxes(6);
 
     // para controles y movimiento
-    this.controls = new PointerLockControls2(this.camera, sphereBody);
+    this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
     this.add(this.controls.getObject());
-    this.VELOCIDAD_PERSONAJE = 1000;
-    this.velocity = new THREE.Vector3();
-    this.direction = new THREE.Vector3();
     this.tiempo = Date.now();
+  }
+
+  pickObject(){
+    console.log("se llama")
+    var mouse = new THREE.Vector2();
+    mouse.x = 0//(event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = 0//1 - 2* (event.clientY /window.innerHeight);
+
+    var raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse,this.camera);
+
+    var pickedObjects = raycaster.intersectObjects(this.pickableObjects, true);
+
+    if (pickedObjects.length > 0){
+      console.log("he pillado algo");
+      var selectedObject = pickedObjects[0].object;
+      var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
+      this.eraseObject(selectedObject);
+    }
+  }
+
+  eraseObject(object){
+    object.geometry.dispose();
+    object.material.dispose();
+    this.world.remove(object);
+    this.remove( object );
   }
 
   createCamera() {
@@ -98,28 +93,7 @@ class MyScene extends THREE.Scene {
     // También se indica dónde se coloca
     this.camera.position.set(0, 0, 0);
 
-    /* GESTOR DE CAMARA */
-    /* hay que sustituir por raycasting */
-    // Y hacia dónde mira
-    //var look = new THREE.Vector3(0, 0, 0);
-
-    //this.camera.lookAt(look);
-
     this.add(this.camera);
-
-    // Para el control de cámara usamos una clase que ya tiene implementado los movimientos de órbita
-    /*
-    this.cameraControl = new THREE.TrackballControls(
-      this.camera,
-      this.renderer.domElement
-    );
-    // Se configuran las velocidades de los movimientos
-    this.cameraControl.rotateSpeed = 5;
-    this.cameraControl.zoomSpeed = -2;
-    this.cameraControl.panSpeed = 0.5;
-    // Debe orbitar con respecto al punto de mira de la cámara
-    this.cameraControl.target = look;
-    */
   }
 
   createGround() {
@@ -212,6 +186,37 @@ class MyScene extends THREE.Scene {
     return renderer;
   }
 
+  // crear 7 cajas
+  createBoxes(num_boxes){
+    var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
+    var halfExtents = new CANNON.Vec3(10, 10, 10);
+    var boxShape = new CANNON.Box(halfExtents);
+    var boxGeometry = new THREE.BoxGeometry(
+      halfExtents.x * 2,
+      halfExtents.y * 2,
+      halfExtents.z * 2
+    );
+
+    var x = Math.random() * 100;
+    var z =  Math.random() * 100;
+    for (var i = 0; i < num_boxes; i++) {
+      var y = 15 + i * 50;
+
+      var boxBody = new CANNON.Body({ mass: 10 });
+      boxBody.addShape(boxShape);
+      var boxMesh = new THREE.Mesh(boxGeometry, material);
+      this.world.addBody(boxBody);
+      this.add(boxMesh);
+      boxBody.position.set(x, y, z);
+      boxMesh.position.set(x, y, z);
+      boxMesh.castShadow = true;
+      boxMesh.receiveShadow = true;
+      this.boxes.push(boxBody);
+      this.boxMeshes.push(boxMesh);
+      this.pickableObjects.push(boxMesh);
+    }
+  }
+
   getCamera() {
     // En principio se devuelve la única cámara que tenemos
     // Si hubiera varias cámaras, este método decidiría qué cámara devuelve cada vez que es consultado
@@ -235,15 +240,68 @@ class MyScene extends THREE.Scene {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
+  iniciarCanon() {
+
+   // Crear el mundo
+   this.world = new CANNON.World();
+   this.world.gravity.set(0, -100, 0);
+   this.world.quatNormalizeSkip = 0;
+   this.world.quatNormalizeFast = false;
+
+   var solver = new CANNON.GSSolver();
+
+   this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
+   this.world.defaultContactMaterial.contactEquationRelaxation = 4;
+
+   solver.iterations = 7;
+   solver.tolerance = 0.1;
+   var split = true;
+   if (split) this.world.solver = new CANNON.SplitSolver(solver);
+   else this.world.solver = solver;
+
+   //world.gravity.set(0,-50,0);
+   this.world.broadphase = new CANNON.NaiveBroadphase();
+
+   // Create a slippery material (friction coefficient = 0.0)
+   var physicsMaterial = new CANNON.Material();
+   var physicsContactMaterial = new CANNON.ContactMaterial(
+     physicsMaterial,
+     physicsMaterial,
+     0.0, // friction coefficient
+     0.3
+   ); // restitution
+   // We must add the contact materials to the this.world
+   this.world.addContactMaterial(physicsContactMaterial);
+
+   // Create a sphere
+   var mass = 80;
+   var radio = 15;
+   var sphereShape = new CANNON.Sphere(radio);
+   //var sphereShape = new CANNON.Sphere(radius);
+   this.sphereBody = new CANNON.Body({ mass: mass });
+   this.sphereBody.addShape(sphereShape);
+   this.sphereBody.position.set(0, 30, 0);
+   this.sphereBody.linearDamping = 0.9;
+   this.world.addBody(this.sphereBody);
+
+   // Create a plane
+   var groundShape = new CANNON.Plane();
+   var groundBody = new CANNON.Body({ mass: 0 });
+   groundBody.addShape(groundShape);
+   groundBody.quaternion.setFromAxisAngle(
+     new CANNON.Vec3(1, 0, 0),
+     -Math.PI / 2
+   );
+   this.world.addBody(groundBody);
+ }
+
+
   update() {
     // Este método debe ser llamado cada vez que queramos visualizar la escena de nuevo.
 
     // Literalmente le decimos al navegador: "La próxima vez que haya que refrescar la pantalla, llama al método que te indico".
     // Si no existiera esta línea,  update()  se ejecutaría solo la primera vez.
     requestAnimationFrame(() => this.update());
-
-    this.raycaster.ray.origin.copy(this.controls.getObject().position);
-    this.raycaster.ray.origin.y -= 10;
 
     // Se actualizan los elementos de la escena para cada frame
     // Se actualiza la intensidad de la luz con lo que haya indicado el usuario en la gui
@@ -252,52 +310,8 @@ class MyScene extends THREE.Scene {
     // Se muestran o no los ejes según lo que idique la GUI
     this.axis.visible = this.guiControls.axisOnOff;
 
-    // Se actualiza la posición de la cámara según su controlador
-    //this.cameraControl.update();
 
     this.tiempo = Date.now();
-    var delta = (this.tiempo - this.tiempoAnterior) / 1000;
-    /*
-    // deceleración
-    this.velocity.x -= this.velocity.x * 10.0 * delta;
-    this.velocity.z -= this.velocity.z * 10.0 * delta;
-
-    if (this.controls.getObject().position.y > 30){
-      	this.velocity.y -= 9.8 * 100.0 * delta; // gravedad - masa = 100
-        if (this.applicationMode === MyScene.jumping){
-          this.applicationMode = MyScene.noAction;
-        }
-    }
-    else {
-      this.velocity.y = 0;
-    }
-*/
-
-    /*
-    if (this.applicationMode === MyScene.moveForward){
-        this.velocity.z -=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        this.controls.moveForward(- this.velocity.z * delta)
-    }
-    else if (this.applicationMode === MyScene.moveBackward){
-        this.velocity.z +=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        this.controls.moveForward(- this.velocity.z * delta)
-    }
-    else if (this.applicationMode === MyScene.moveRight){
-        this.velocity.x -=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        this.controls.moveRight(- this.velocity.x * delta)
-    }
-    else if (this.applicationMode === MyScene.moveLeft){
-        this.velocity.x +=  this.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        this.controls.moveRight(- this.velocity.x * delta)
-    }
-    else if (this.applicationMode === MyScene.jumping){
-      this.velocity.y += this.VELOCIDAD_PERSONAJE/3 ;
-    }
-
-    this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
-    */
-
-    //this.controls.update( delta );
 
     if (this.controls.enabled) {
       this.world.step(1 / 60);
@@ -310,7 +324,6 @@ class MyScene extends THREE.Scene {
     }
 
     this.controls.update(Date.now() - this.tiempo);
-    //this.controls.update( delta );
 
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
     this.renderer.render(this, this.getCamera());
@@ -450,187 +463,7 @@ $(function () {
       "Your browser doesn't seem to support Pointer Lock API";
   }
 
-  // debe ir en la escena
-  onDocumentMouseDown(event){
-    var mouse = new THREE.Vector2();
-    mouse.x = (event. clientX / window.innerWidth) * 2 - 1;
-    mouse.y = 1 - 2* (event.clientY /window.innerHeight);
-
-    var raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse,this.camera);
-
-    var pickedObjects = raycaster.instersectObjects (this.pickableObjects, true);
-
-    if (pickedObjects.length > 0){
-      var selectedObject = pickedObjects[0].object;
-      var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
-      //...
-    }
-  }
-  /*
-  function onKeyDown ( event ) {
-
-    // la tecla que ha pulsado el usuario
-    var tecla = event.which || event.keyCode;
-    var delta = (this.tiempo - this.tiempoAnterior) / 1000;
-
-      switch (tecla) {
-
-        case 38: // up
-        case 87: // w
-          scene.velocity.z -=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-          scene.controls.moveForward(- scene.velocity.z * delta)
-          break;
-
-        case 37: // left
-        case 65: // a
-        scene.velocity.x -=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        scene.controls.moveRight(- scene.velocity.x * delta)
-          break;
-
-        case 40: // down
-        case 83: // s
-        scene.velocity.z +=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        scene.controls.moveForward(- scene.velocity.z * delta)
-          break;
-
-        case 39: // right
-        case 68: // d
-        scene.velocity.x +=  scene.VELOCIDAD_PERSONAJE * delta; // avance en el eje z
-        scene.controls.moveRight(- scene.velocity.x * delta)
-          break;
-
-        case 32: // space
-          if ( scene.applicationMode != MyScene.jumping ){
-            scene.velocity.y += scene.VELOCIDAD_PERSONAJE/3 ;
-          }
-          break;
-      }
-
-  };
-
-  function onKeyUp ( event ) {
-
-    // la tecla que ha pulsado el usuario
-    var tecla = event.which || event.keyCode;
-
-    switch (tecla) {
-      case 38: // up
-      case 87: // w
-        if (scene.applicationMode === MyScene.moveForward){
-            scene.applicationMode = MyScene.noAction
-        }
-        break;
-
-      case 37: // left
-      case 65: // a
-        if (scene.applicationMode === MyScene.moveLeft){
-          scene.applicationMode = MyScene.noAction
-        }
-        break;
-
-      case 40: // down
-      case 83: // s
-        if (scene.applicationMode === MyScene.moveBackward){
-          scene.applicationMode = MyScene.noAction
-        }
-        break;
-
-      case 39: // right
-      case 68: // d
-        if (scene.applicationMode === MyScene.moveRight){
-          scene.applicationMode = MyScene.noAction;
-        }
-        break;
-    }
-
-  };
-  */
-  /*
-  document.addEventListener( 'keydown', event => onKeyDown(event), false );
-  document.addEventListener( 'keyup',  event => onKeyUp(event), false );
-*/
-
-  /*
-  instructions.addEventListener( 'click', function () {
-
-    scene.controls.lock();
-
-  }, false );
-
-
-  scene.controls.getObject().addEventListener( 'lock', function () {
-
-    instructions.style.display = 'none';
-    blocker.style.display = 'none';
-
-  } );
-
-  scene.controls.getObject().addEventListener( 'unlock', function () {
-
-    blocker.style.display = 'block';
-    instructions.style.display = '';
-
-  } );
-*/
 
   // Que no se nos olvide, la primera visualización.
   scene.update();
 });
-
-function iniciarCanon() {
-  var world;
-  // Crear el mundo
-  world = new CANNON.World();
-  world.gravity.set(0, -100, 0);
-  world.quatNormalizeSkip = 0;
-  world.quatNormalizeFast = false;
-
-  var solver = new CANNON.GSSolver();
-
-  world.defaultContactMaterial.contactEquationStiffness = 1e9;
-  world.defaultContactMaterial.contactEquationRelaxation = 4;
-
-  solver.iterations = 7;
-  solver.tolerance = 0.1;
-  var split = true;
-  if (split) world.solver = new CANNON.SplitSolver(solver);
-  else world.solver = solver;
-
-  //world.gravity.set(0,-50,0);
-  world.broadphase = new CANNON.NaiveBroadphase();
-
-  // Create a slippery material (friction coefficient = 0.0)
-  var physicsMaterial = new CANNON.Material();
-  var physicsContactMaterial = new CANNON.ContactMaterial(
-    physicsMaterial,
-    physicsMaterial,
-    0.0, // friction coefficient
-    0.3
-  ); // restitution
-  // We must add the contact materials to the this.world
-  world.addContactMaterial(physicsContactMaterial);
-
-  // Create a sphere
-  var mass = 80;
-  var radio = 15;
-  var sphereShape = new CANNON.Sphere(radio);
-  //var sphereShape = new CANNON.Sphere(radius);
-  sphereBody = new CANNON.Body({ mass: mass });
-  sphereBody.addShape(sphereShape);
-  sphereBody.position.set(0, 30, 0);
-  sphereBody.linearDamping = 0.9;
-  world.addBody(sphereBody);
-
-  // Create a plane
-  var groundShape = new CANNON.Plane();
-  var groundBody = new CANNON.Body({ mass: 0 });
-  groundBody.addShape(groundShape);
-  groundBody.quaternion.setFromAxisAngle(
-    new CANNON.Vec3(1, 0, 0),
-    -Math.PI / 2
-  );
-  world.addBody(groundBody);
-
-  return world;
-}

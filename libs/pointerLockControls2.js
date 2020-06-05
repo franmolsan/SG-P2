@@ -1,8 +1,4 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- * @author schteppe / https://github.com/schteppe
- */
- var PointerLockControls2 = function ( camera, cannonBody ) {
+var PointerLockControls = function ( scene, camera, cannonBody ) {
 
     var eyeYPos = 30; // eyes are 2 meters above the ground
     var velocityFactor = 50;
@@ -82,12 +78,17 @@
                 moveRight = true;
                 break;
 
+            case 69: // e
+                scene.pickObject();
+                break;
+
             case 32: // space
                 if ( canJump === true ){
                     velocity.y = jumpVelocity;
                 }
                 canJump = false;
                 break;
+
         }
 
     };
@@ -107,7 +108,7 @@
                 break;
 
             case 40: // down
-            case 83: // a
+            case 83: // s
                 moveBackward = false;
                 break;
 
@@ -176,4 +177,4 @@
     };
 };
 
-export { PointerLockControls2 };
+export { PointerLockControls };
