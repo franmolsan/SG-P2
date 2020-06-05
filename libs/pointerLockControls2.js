@@ -79,7 +79,7 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
                 break;
 
             case 69: // e
-                scene.pickObject();
+                scene.eraseObject();
                 break;
 
             case 32: // space

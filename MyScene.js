@@ -40,8 +40,6 @@ class MyScene extends THREE.Scene {
     this.iniciarCanon();
 
     // Add boxes
-    this.boxes = [];
-    this.boxMeshes = [];
     this.pickableObjects = []
     this.createBoxes(4);
     this.createBoxes(2);
@@ -62,21 +60,41 @@ class MyScene extends THREE.Scene {
     var raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse,this.camera);
 
-    var pickedObjects = raycaster.intersectObjects(this.pickableObjects, true);
+    var pickableMesh = [];
+    for (var i = 0; i < this.pickableObjects.length; i++) {
+      pickableMesh.push(this.pickableObjects[i].mesh);
+    }
+
+    var pickedObjects = raycaster.intersectObjects(pickableMesh, true);
 
     if (pickedObjects.length > 0){
       console.log("he pillado algo");
       var selectedObject = pickedObjects[0].object;
-      var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
-      this.eraseObject(selectedObject);
+
+      var indice;
+      for (var i = 0; i < pickableMesh.length; i++) {
+        if(pickableMesh[i] === selectedObject){
+          indice = i;
+        }
+      }
+
+      // var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
+      return indice; // devolver índice del objeto encontrado (en el array pickableObjects)
     }
   }
 
-  eraseObject(object){
-    object.geometry.dispose();
-    object.material.dispose();
-    this.world.remove(object);
-    this.remove( object );
+  eraseObject(){
+    var index = this.pickObject();
+
+    // si hemos seleccionado un objecto del array pickableObjects se borra
+    if (index >= 0) {
+      var object = this.pickableObjects[index];
+      object.erase();
+      this.world.remove(object.body); // borrar parte física del objecto (body)
+      this.remove( object.mesh ); // borrar parte visual del objecto (mesh)
+      this.pickableObjects.splice(index, 1); // eliminar el objeto del conjunto de objetos existentes
+    }
+
   }
 
   createCamera() {
@@ -186,34 +204,22 @@ class MyScene extends THREE.Scene {
     return renderer;
   }
 
-  // crear 7 cajas
+  // crear cajas
   createBoxes(num_boxes){
-    var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-    var halfExtents = new CANNON.Vec3(10, 10, 10);
-    var boxShape = new CANNON.Box(halfExtents);
-    var boxGeometry = new THREE.BoxGeometry(
-      halfExtents.x * 2,
-      halfExtents.y * 2,
-      halfExtents.z * 2
-    );
 
+    // las coordenadas x,z son iguales para todas las cajas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
     var x = Math.random() * 100;
     var z =  Math.random() * 100;
     for (var i = 0; i < num_boxes; i++) {
       var y = 15 + i * 50;
 
-      var boxBody = new CANNON.Body({ mass: 10 });
-      boxBody.addShape(boxShape);
-      var boxMesh = new THREE.Mesh(boxGeometry, material);
-      this.world.addBody(boxBody);
-      this.add(boxMesh);
-      boxBody.position.set(x, y, z);
-      boxMesh.position.set(x, y, z);
-      boxMesh.castShadow = true;
-      boxMesh.receiveShadow = true;
-      this.boxes.push(boxBody);
-      this.boxMeshes.push(boxMesh);
-      this.pickableObjects.push(boxMesh);
+      var caja = new Caja (x,y,z)
+      this.world.addBody(caja.body);
+      this.add(caja.mesh);
+
+      this.pickableObjects.push(caja);
     }
   }
 
@@ -317,9 +323,8 @@ class MyScene extends THREE.Scene {
       this.world.step(1 / 60);
 
       // Update box positions
-      for (var i = 0; i < this.boxes.length; i++) {
-        this.boxMeshes[i].position.copy(this.boxes[i].position);
-        this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
+      for (var i = 0; i < this.pickableObjects.length; i++) {
+        this.pickableObjects[i].update();
       }
     }
 
