@@ -43,17 +43,17 @@ class MyScene extends THREE.Scene {
 
     // Add boxes
     var material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
-    var halfExtents = new CANNON.Vec3(15,15,15);
+    var halfExtents = new CANNON.Vec3(10,10,10);
     var boxShape = new CANNON.Box(halfExtents);
     var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
 
     this.boxes = [];
     this.boxMeshes = [];
     for(var i=0; i<7; i++){
-        var x = (Math.random()-0.5)*500;
-        var y = 15 + (Math.random())*50;
-        var z = (Math.random()-0.5)*500;
-        var boxBody = new CANNON.Body({ mass: 5 });
+        var x = 100;
+        var y = 15 + (i*50);
+        var z = 100;
+        var boxBody = new CANNON.Body({ mass: 10 });
         boxBody.addShape(boxShape);
         var boxMesh = new THREE.Mesh( boxGeometry, material );
         this.world.addBody(boxBody);
@@ -82,7 +82,7 @@ class MyScene extends THREE.Scene {
     //   Los planos de recorte cercano y lejano
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
     // También se indica dónde se coloca
-    this.camera.position.set(0, 30, 0);
+    this.camera.position.set(0, 0, 0);
 
     /* GESTOR DE CAMARA */
     /* hay que sustituir por raycasting */
@@ -523,6 +523,7 @@ function iniciarCanon() {
   var world;
   // Crear el mundo
   world = new CANNON.World();
+  world.gravity.set(0,-100,0);
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
 
@@ -539,11 +540,11 @@ function iniciarCanon() {
   else
       world.solver = solver;
 
-  world.gravity.set(0,-20,0);
+  //world.gravity.set(0,-50,0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create a slippery material (friction coefficient = 0.0)
-  var physicsMaterial = new CANNON.Material("slipperyMaterial");
+  var physicsMaterial = new CANNON.Material();
   var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial, physicsMaterial,
                                                           0.0, // friction coefficient
                                                           0.3);  // restitution
@@ -551,11 +552,13 @@ function iniciarCanon() {
   world.addContactMaterial(physicsContactMaterial);
 
   // Create a sphere
-  var mass = 5, radius = 1.3;
-  var sphereShape = new CANNON.Sphere(radius);
+  var mass = 80;
+  var radio = 15;
+  var sphereShape = new CANNON.Sphere(radio);
+  //var sphereShape = new CANNON.Sphere(radius);
   sphereBody = new CANNON.Body({ mass: mass });
   sphereBody.addShape(sphereShape);
-  sphereBody.position.set(0,5,0);
+  sphereBody.position.set(0,30,0);
   sphereBody.linearDamping = 0.9;
   world.addBody(sphereBody);
 
