@@ -3,7 +3,7 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 
-import { PointerLockControls } from './libs/PointerLockControls2.js';
+import { PointerLockControls2 } from './libs/PointerLockControls2.js';
 var sphereBody;
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -67,12 +67,12 @@ class MyScene extends THREE.Scene {
     }
 
    // para controles y movimiento
-    this.controls = new PointerLockControls( this.camera, sphereBody );
+    this.controls = new PointerLockControls2( this.camera, sphereBody );
     this.add(this.controls.getObject());
     this.VELOCIDAD_PERSONAJE = 1000;
     this.velocity = new THREE.Vector3();
     this.direction = new THREE.Vector3();
-    this.tiempoAnterior = Date.now();
+    this.tiempo = Date.now();
   }
 
   createCamera() {
@@ -238,7 +238,7 @@ class MyScene extends THREE.Scene {
 
     this.tiempo = Date.now();
     var delta = (this.tiempo - this.tiempoAnterior) / 1000;
-
+/*
     // deceleración
     this.velocity.x -= this.velocity.x * 10.0 * delta;
     this.velocity.z -= this.velocity.z * 10.0 * delta;
@@ -252,7 +252,7 @@ class MyScene extends THREE.Scene {
     else {
       this.velocity.y = 0;
     }
-
+*/
 
 
     /*
@@ -282,19 +282,23 @@ class MyScene extends THREE.Scene {
     //this.controls.update( delta );
 
 
+    if(this.controls.enabled){
+      this.world.step(1/60);
 
-
-    // Update box positions
-    for(var i=0; i<this.boxes.length; i++){
-        this.boxMeshes[i].position.copy(this.boxes[i].position);
-        this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
+      // Update box positions
+      for(var i=0; i<this.boxes.length; i++){
+          this.boxMeshes[i].position.copy(this.boxes[i].position);
+          this.boxMeshes[i].quaternion.copy(this.boxes[i].quaternion);
+      }
     }
 
-    this.controls.update( delta );
+
+    this.controls.update( Date.now() - this.tiempo );
+    //this.controls.update( delta );
 
     // Le decimos al renderizador "visualiza la escena que te indico usando la cámara que te estoy pasando"
     this.renderer.render(this, this.getCamera());
-    this.tiempoAnterior = this.tiempo;
+    this.tiempo = Date.now();
   }
 }
 
