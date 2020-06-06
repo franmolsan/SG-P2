@@ -22,6 +22,9 @@ class Caja extends THREE.Object3D {
     this.mesh.receiveShadow = true;
 
     this.add( this.mesh );
+
+    // para seleccionar el objeto
+    this.seleccionado = false;
   }
 
   erase(){
@@ -29,6 +32,14 @@ class Caja extends THREE.Object3D {
     this.mesh.geometry.dispose();
     this.mesh.material.dispose();
     this.body.shape = [];
+  }
+
+  followPlayer(x, y, z){
+    if (this.seleccionado){
+      this.body.position.x = x;
+      this.body.position.y = y;
+      this.body.position.z = z;
+    }
   }
 
   update () {

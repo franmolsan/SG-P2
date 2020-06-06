@@ -1,3 +1,6 @@
+
+import { Estado } from "../estados.js";
+
 var PointerLockControls = function ( scene, camera, cannonBody ) {
 
     var eyeYPos = 30; // eyes are 2 meters above the ground
@@ -78,8 +81,18 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
                 moveRight = true;
                 break;
 
+            case 82: // r
+              scene.eraseObject();
+              break;
+
             case 69: // e
-                scene.eraseObject();
+
+                if(scene.applicationMode === Estado.OBJECT_PICKED){
+                  scene.unpickObject();
+                }
+                else {
+                  scene.pickObject();
+                }
                 break;
 
             case 32: // space
@@ -134,7 +147,8 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
 
     this.getDirection = function(targetVec){
         targetVec.set(0,0,-1);
-        quat.multiplyVector3(targetVec);
+        targetVec.applyQuaternion(quat);
+        //quat.multiplyVector3(targetVec);
     }
 
     // Moves the camera to the Cannon.js object position and adds velocity to the object if the run key is down
@@ -173,7 +187,6 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
         velocity.x += inputVelocity.x;
         velocity.z += inputVelocity.z;
 
-        console.log(velocity.y);
 
         yawObject.position.copy(cannonBody.position);
     };

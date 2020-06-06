@@ -3,6 +3,7 @@
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
 import { PointerLockControls } from "./libs/pointerLockControls2.js";
+import { Estado } from "./estados.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -10,7 +11,7 @@ class MyScene extends THREE.Scene {
 
     this.sphereBody;
     // estado de la aplicación: no acción (0)
-    this.applicationMode = MyScene.noAction;
+    this.applicationMode = Estado.NO_ACTION;
 
     // fondo
     //this.background = new THREE.TextureLoader().load( "imgs/tierra.jpg" );
@@ -41,6 +42,7 @@ class MyScene extends THREE.Scene {
 
     // Add boxes
     this.pickableObjects = []
+    this.pickedObjectIndex = -1;
     this.createBoxes(4);
     this.createBoxes(2);
     this.createBoxes(6);
@@ -52,7 +54,6 @@ class MyScene extends THREE.Scene {
   }
 
   pickObject(){
-    console.log("se llama")
     var mouse = new THREE.Vector2();
     mouse.x = 0//(event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = 0//1 - 2* (event.clientY /window.innerHeight);
@@ -68,7 +69,6 @@ class MyScene extends THREE.Scene {
     var pickedObjects = raycaster.intersectObjects(pickableMesh, true);
 
     if (pickedObjects.length > 0){
-      console.log("he pillado algo");
       var selectedObject = pickedObjects[0].object;
 
       var indice;
@@ -79,22 +79,30 @@ class MyScene extends THREE.Scene {
       }
 
       // var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
-      return indice; // devolver índice del objeto encontrado (en el array pickableObjects)
+      this.pickedObjectIndex = indice;
+      this.pickableObjects[indice].seleccionado = true;
+      this.applicationMode = Estado.OBJECT_PICKED;
     }
   }
 
-  eraseObject(){
-    var index = this.pickObject();
+  unpickObject(){
+    this.pickableObjects[this.pickedObjectIndex].seleccionado = false;
+    this.pickedObjectIndex = -1;
+    this.applicationMode = Estado.NO_ACTION;
+  }
 
-    // si hemos seleccionado un objecto del array pickableObjects se borra
-    if (index >= 0) {
-      var object = this.pickableObjects[index];
+  eraseObject(){
+    // si hemos seleccionado un objecto
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
       object.erase();
       this.world.remove(object.body); // borrar parte física del objecto (body)
       this.remove( object.mesh ); // borrar parte visual del objecto (mesh)
-      this.pickableObjects.splice(index, 1); // eliminar el objeto del conjunto de objetos existentes
+      this.pickableObjects.splice(this.pickedObjectIndex, 1); // eliminar el objeto del conjunto de objetos existentes
     }
 
+    this.pickedObjectIndex = -1;
+    this.applicationMode = Estado.NO_ACTION;
   }
 
   createCamera() {
@@ -325,6 +333,18 @@ class MyScene extends THREE.Scene {
     if (this.controls.enabled) {
       this.world.step(1 / 60);
 
+      //console.log(this.sphereBody.position.x);
+
+      if (this.applicationMode === Estado.OBJECT_PICKED){
+
+        var dir = new THREE.Vector3();
+        this.controls.getDirection(dir);
+
+        this.pickableObjects[this.pickedObjectIndex].followPlayer(this.controls.getObject().position.x + (50 * dir.x ),
+                                                                  this.controls.getObject().position.y + (70 * -dir.y),
+                                                                  this.controls.getObject().position.z + (50 * dir.z ));
+      }
+
       // Update box positions
       for (var i = 0; i < this.pickableObjects.length; i++) {
         this.pickableObjects[i].update();
@@ -339,14 +359,6 @@ class MyScene extends THREE.Scene {
   }
 }
 
-// constantes numéricas para los estados
-// de la aplicación
-MyScene.noAction = 0;
-MyScene.moveForward = 1;
-MyScene.moveBackward = 2;
-MyScene.moveLeft = 3;
-MyScene.moveRight = 4;
-MyScene.jumping = 5;
 
 /// La función   main
 $(function () {
