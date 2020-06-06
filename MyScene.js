@@ -116,6 +116,10 @@ class MyScene extends THREE.Scene {
       1,
       1000
     );
+
+    var crosshair = new Crosshair(this.camera);
+    crosshair = crosshair.object;
+    this.camera.add(crosshair);
     // También se indica dónde se coloca
     this.camera.position.set(0, 0, 0);
 
