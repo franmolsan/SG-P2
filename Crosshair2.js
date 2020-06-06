@@ -1,5 +1,5 @@
 
-class Crosshair extends THREE.Line {
+class Crosshair2 extends THREE.Line {
 
   constructor(camera) {
     super();

@@ -14,7 +14,7 @@ class MyScene extends THREE.Scene {
     this.applicationMode = Estado.NO_ACTION;
 
     // fondo
-    //this.background = new THREE.TextureLoader().load( "imgs/tierra.jpg" );
+    this.background = new THREE.Color( 0x000000 );
 
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
@@ -105,6 +105,21 @@ class MyScene extends THREE.Scene {
     this.applicationMode = Estado.NO_ACTION;
   }
 
+  wheelScaleObject(y){
+      if (this.applicationMode === Estado.OBJECT_PICKED) {
+        var deltaSize = 0;
+        // scroll hacia arriba
+        if (y > 0){
+          deltaSize = 0.2;
+        }
+        else {
+          deltaSize = -0.2;
+        }
+
+        this.pickableObjects[this.pickedObjectIndex].wheelScale(deltaSize);
+      }
+  }
+
   createCamera() {
     // Para crear una cámara le indicamos
     //   El ángulo del campo de visión en grados sexagesimales
@@ -117,13 +132,10 @@ class MyScene extends THREE.Scene {
       1000
     );
 
-    var crosshair = new Crosshair(this.camera);
-    crosshair = crosshair.object;
-    this.camera.add(crosshair);
     // También se indica dónde se coloca
-    this.camera.position.set(0, 0, 0);
-
+    this.camera.position.set(0,0,0);
     this.add(this.camera);
+
   }
 
   createGround() {
@@ -337,15 +349,11 @@ class MyScene extends THREE.Scene {
     if (this.controls.enabled) {
       this.world.step(1 / 60);
 
-      //console.log(this.sphereBody.position.x);
-
       if (this.applicationMode === Estado.OBJECT_PICKED){
-
         var dir = new THREE.Vector3();
-        this.controls.getDirection(dir);
-
+        this.camera.getWorldDirection(dir);
         this.pickableObjects[this.pickedObjectIndex].followPlayer(this.controls.getObject().position.x + (50 * dir.x ),
-                                                                  this.controls.getObject().position.y + (70 * -dir.y),
+                                                                  this.controls.getObject().position.y + (70 * dir.y),
                                                                   this.controls.getObject().position.z + (50 * dir.z ));
       }
 

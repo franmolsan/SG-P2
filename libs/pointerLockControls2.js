@@ -69,7 +69,8 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
 
             case 37: // left
             case 65: // a
-                moveLeft = true; break;
+                moveLeft = true;
+                break;
 
             case 40: // down
             case 83: // s
@@ -86,14 +87,13 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
               break;
 
             case 69: // e
-
-                if(scene.applicationMode === Estado.OBJECT_PICKED){
-                  scene.unpickObject();
-                }
-                else {
-                  scene.pickObject();
-                }
-                break;
+              if(scene.applicationMode === Estado.OBJECT_PICKED){
+                scene.unpickObject();
+              }
+              else {
+                scene.pickObject();
+              }
+              break;
 
             case 32: // space
                 if ( canJump === true ){
@@ -135,9 +135,14 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
 
     };
 
+    var onMouseWheel = function ( event ) {
+      scene.wheelScaleObject(event.wheelDeltaY)
+    }
+
     document.addEventListener( 'mousemove', onMouseMove, false );
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
+    document.addEventListener( 'wheel', onMouseWheel, false );
 
     this.enabled = false;
 
