@@ -1,20 +1,15 @@
 
-class Caja extends Objeto {
+class Esfera extends Objeto {
 
   constructor(x,y,z) {
         super();
-
+        var radio = 10;
         var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-        var halfExtents = new CANNON.Vec3(10, 10, 10);
-        var shape = new CANNON.Box(halfExtents);
-        var boxGeometry = new THREE.BoxGeometry(
-          halfExtents.x * 2,
-          halfExtents.y * 2,
-          halfExtents.z * 2
-        );
+        var shape = new CANNON.Sphere(radio);
+        var sphereGeometry = new THREE.SphereGeometry(radio, 30, 30);
 
         this.body= new CANNON.Body({ mass: 10, shape: shape });
-        this.mesh = new THREE.Mesh(boxGeometry, material);
+        this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
@@ -34,8 +29,8 @@ class Caja extends Objeto {
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      if(y < this.body.shapes[0].halfExtents.y){
-        y = this.body.shapes[0].halfExtents.y;
+      if(y < this.body.shapes[0].radius){
+        y = this.body.shapes[0].radius;
       }
 
       this.body.position.x = x;
@@ -64,13 +59,10 @@ class Caja extends Objeto {
     // escalar física de cannon
     var dimensions = 10*this.size;
 
-    this.body.shapes[0].halfExtents.x = dimensions;
-    this.body.shapes[0].halfExtents.y = dimensions;
-    this.body.shapes[0].halfExtents.z = dimensions;
+    this.body.shapes[0].radius = dimensions;
     this.body.mass = 10 * Math.pow(this.size,3);
 
-    this.body.shapes[0].boundingSphereRadiusNeedsUpdate = true;
-    this.body.shapes[0].updateConvexPolyhedronRepresentation();
+    this.body.shapes[0].updateBoundingSphereRadius ();
 
     this.body.updateBoundingRadius();
     this.body.updateMassProperties();

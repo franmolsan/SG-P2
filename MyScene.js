@@ -46,6 +46,7 @@ class MyScene extends THREE.Scene {
     this.createBoxes(4);
     this.createBoxes(2);
     this.createBoxes(6);
+    this.createSpheres(6);
 
     // para controles y movimiento
     this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
@@ -161,7 +162,6 @@ class MyScene extends THREE.Scene {
     // El suelo lo bajamos la mitad de su altura para que el origen del mundo se quede en su lado superior
     ground.position.y = -0.1;
 
-    ground.castShadow = true;
     ground.receiveShadow = true;
 
 
@@ -211,6 +211,7 @@ class MyScene extends THREE.Scene {
     // En este caso se declara como   this.atributo   para que sea un atributo accesible desde otros métodos.
     this.spotLight = new THREE.SpotLight(0xffffff, 0.5);
     this.spotLight.position.set(0, 300, 0);
+    this.spotLight.castShadow = true;
     this.add(this.spotLight);
   }
 
@@ -225,6 +226,9 @@ class MyScene extends THREE.Scene {
 
     // Se establece el tamaño, se aprovecha la totalidad de la ventana del navegador
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // para las sombras
+    renderer.shadowMap.enabled = true;
 
     // La visualización se muestra en el lienzo recibido
     $(myCanvas).append(renderer.domElement);
@@ -250,6 +254,26 @@ class MyScene extends THREE.Scene {
       this.pickableObjects.push(caja);
     }
   }
+
+  // crear cajas
+  createSpheres(num_spheres){
+
+    // las coordenadas x,z son iguales para todas las esferas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x = Math.random() * 100;
+    var z =  Math.random() * 100;
+    for (var i = 0; i < num_spheres; i++) {
+      var y = 15 + i * 50;
+
+      var esfera = new Esfera (x,y,z)
+      this.world.addBody(esfera.body);
+      this.add(esfera.mesh);
+
+      this.pickableObjects.push(esfera);
+    }
+  }
+
 
   getCamera() {
     // En principio se devuelve la única cámara que tenemos
@@ -293,7 +317,6 @@ class MyScene extends THREE.Scene {
    if (split) this.world.solver = new CANNON.SplitSolver(solver);
    else this.world.solver = solver;
 
-   //world.gravity.set(0,-50,0);
    this.world.broadphase = new CANNON.NaiveBroadphase();
 
    // Create a slippery material (friction coefficient = 0.0)
@@ -308,7 +331,7 @@ class MyScene extends THREE.Scene {
    this.world.addContactMaterial(physicsContactMaterial);
 
    // Create a sphere
-   var mass = 80;
+   var mass = 100;
    var radio = 15;
    var sphereShape = new CANNON.Sphere(radio);
    this.sphereBody = new CANNON.Body({ mass: mass , shape: sphereShape});
@@ -352,9 +375,22 @@ class MyScene extends THREE.Scene {
       if (this.applicationMode === Estado.OBJECT_PICKED){
         var dir = new THREE.Vector3();
         this.camera.getWorldDirection(dir);
+
         this.pickableObjects[this.pickedObjectIndex].followPlayer(this.controls.getObject().position.x + (50 * dir.x ),
                                                                   this.controls.getObject().position.y + (70 * dir.y),
                                                                   this.controls.getObject().position.z + (50 * dir.z ));
+
+
+
+
+        //console.log(this.world.bodies[0].velocity.x);
+        /*
+        this.pickableObjects[this.pickedObjectIndex].followPlayer(this.world.bodies[0].velocity.x * dir.x ,
+                                                                  this.world.bodies[0].velocity.y * dir.y,
+                                                                  this.world.bodies[0].velocity.z* dir.z );
+        */
+
+
       }
 
       // Update box positions
