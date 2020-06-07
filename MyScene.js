@@ -19,9 +19,6 @@ class MyScene extends THREE.Scene {
     // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
     this.renderer = this.createRenderer(myCanvas);
 
-    // Se añade a la gui los controles para manipular los elementos de esta clase
-    this.gui = this.createGUI();
-
     // Construimos los distinos elementos que tendremos en la escena
 
     // Todo elemento que se desee sea tenido en cuenta en el renderizado de la escena debe pertenecer a esta. Bien como hijo de la escena (this en esta clase) o como hijo de un elemento que ya esté en la escena.
@@ -47,6 +44,10 @@ class MyScene extends THREE.Scene {
     this.createBoxes(2);
     this.createBoxes(6);
     this.createSpheres(6);
+    this.createCylinders(3);
+
+    // Se añade a la gui los controles para manipular los elementos de esta clase
+    this.gui = this.createGUI();
 
     // para controles y movimiento
     this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
@@ -169,19 +170,40 @@ class MyScene extends THREE.Scene {
     this.add(ground);
   }
 
-  createGUI() {
-    // Se crea la interfaz gráfica de usuario
+
+
+
+
+
+  createGUI () {
+    // Controles para el tamaño, la orientación y la posición de la caja
+
     var gui = new dat.GUI();
 
-    // La escena le va a añadir sus propios controles.
-    // Se definen mediante una   new function()
-    // En este caso la intensidad de la luz y si se muestran o no los ejes
-    this.guiControls = new (function () {
-      // En el contexto de una función   this   alude a la función
+    var that = this;
+    this.guiControls = new function () {
+
       this.lightIntensity = 0.5;
       this.axisOnOff = true;
-    })();
+      // Un botón para dejarlo todo en su posición inicial
+      // Cuando se pulse se ejecutará esta función.
+      this.addBox = function () {
+        that.createBoxes(1);
+      }
 
+      this.addSphere = function () {
+        that.createSpheres(1);
+      }
+
+      this.addCilindro = function () {
+        that.createCylinders(1);
+      }
+    }
+
+    // Se crea una sección para los controles de la caja
+    // Estas lineas son las que añaden los componentes de la interfaz
+    // Las tres cifras indican un valor mínimo, un máximo y el incremento
+    // El método   listen()   permite que si se cambia el valor de la variable en código, el deslizador de la interfaz se actualice
     // Se crea una sección para los controles de esta clase
     var folder = gui.addFolder("Luz y Ejes");
 
@@ -190,8 +212,11 @@ class MyScene extends THREE.Scene {
       .add(this.guiControls, "lightIntensity", 0, 1, 0.1)
       .name("Intensidad de la Luz : ");
 
-    // Y otro para mostrar u ocultar los ejes
-    folder.add(this.guiControls, "axisOnOff").name("Mostrar ejes : ");
+    var folderCreacion = gui.addFolder("Crear figuras");
+
+    folderCreacion.add (this.guiControls, 'addBox').name ('[ Añadir caja ]');
+    folderCreacion.add (this.guiControls, 'addSphere').name ('[ Añadir esfera ]');
+    folderCreacion.add (this.guiControls, 'addCilindro').name ('[ Añadir cilindro ]');
 
     return gui;
   }
@@ -245,7 +270,7 @@ class MyScene extends THREE.Scene {
     var x = Math.random() * 100;
     var z =  Math.random() * 100;
     for (var i = 0; i < num_boxes; i++) {
-      var y = 15 + i * 50;
+      var y = 150 + i * 50;
 
       var caja = new Caja (x,y,z)
       this.world.addBody(caja.body);
@@ -255,7 +280,7 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  // crear cajas
+  // crear esferas
   createSpheres(num_spheres){
 
     // las coordenadas x,z son iguales para todas las esferas
@@ -264,13 +289,32 @@ class MyScene extends THREE.Scene {
     var x = Math.random() * 100;
     var z =  Math.random() * 100;
     for (var i = 0; i < num_spheres; i++) {
-      var y = 15 + i * 50;
+      var y = 150 + i * 50;
 
       var esfera = new Esfera (x,y,z)
       this.world.addBody(esfera.body);
       this.add(esfera.mesh);
 
       this.pickableObjects.push(esfera);
+    }
+  }
+
+  // crear cilindros
+  createCylinders(num_cylinders){
+
+    // las coordenadas x,z son iguales para todas las esferas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x = Math.random() * 100;
+    var z =  Math.random() * 100;
+    for (var i = 0; i < num_cylinders; i++) {
+      var y = 150 + i * 50;
+
+      var cyl = new Cilindro (x,y,z)
+      this.world.addBody(cyl.body);
+      this.add(cyl.mesh);
+
+      this.pickableObjects.push(cyl);
     }
   }
 
