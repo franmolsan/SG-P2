@@ -5,15 +5,15 @@ class Caja extends THREE.Object3D {
     super();
 
     var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-    this.halfExtents = new CANNON.Vec3(10, 10, 10);
-    this.shape = new CANNON.Box(this.halfExtents);
+    var halfExtents = new CANNON.Vec3(10, 10, 10);
+    var shape = new CANNON.Box(halfExtents);
     var boxGeometry = new THREE.BoxGeometry(
-      this.halfExtents.x * 2,
-      this.halfExtents.y * 2,
-      this.halfExtents.z * 2
+      halfExtents.x * 2,
+      halfExtents.y * 2,
+      halfExtents.z * 2
     );
 
-    this.body= new CANNON.Body({ mass: 10, shape: this.shape });
+    this.body= new CANNON.Body({ mass: 10, shape: shape });
     this.mesh = new THREE.Mesh(boxGeometry, material);
 
     this.body.position.set(x, y, z);
@@ -26,7 +26,7 @@ class Caja extends THREE.Object3D {
     // para escalar con la rueda del ratón
     this.size = 1;
     this.sizeMAX = 2;
-    this.sizeMIN = 0.1;
+    this.sizeMIN = 0.5;
 
     // para seleccionar el objeto
     this.seleccionado = false;
@@ -37,7 +37,7 @@ class Caja extends THREE.Object3D {
     this.mesh.geometry.dispose();
     this.mesh.material.dispose();
     this.body.shape = [];
-    this.shape = [];
+    this.shape = 0;
   }
 
   followPlayer(x, y, z){
@@ -67,14 +67,16 @@ class Caja extends THREE.Object3D {
 
     // escalar física de cannon
     var massAndDimensions = 10*this.size;
-    this.halfExtents.x = massAndDimensions;
-    this.halfExtents.y = massAndDimensions;
-    this.halfExtents.z = massAndDimensions;
 
-    this.shape = new CANNON.Box(this.halfExtents);
-    this.body = new CANNON.Body({ mass: massAndDimensions, shape: this.shape });
-    this.body.shape.boundingSphereRadiusNeedsUpdate = true;
-    //this.body.shape.updateConvexPolyhedronRepresentation();
+    this.body.shapes[0].halfExtents.x = massAndDimensions;
+    this.body.shapes[0].halfExtents.y = massAndDimensions;
+    this.body.shapes[0].halfExtents.z = massAndDimensions;
+    this.body.mass = massAndDimensions;
+
+    this.body.shapes[0].boundingSphereRadiusNeedsUpdate = true;
+    this.body.shapes[0].updateConvexPolyhedronRepresentation();
+
+    //console.log(this.body)
 
   }
 
