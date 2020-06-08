@@ -54,7 +54,6 @@ class MyScene extends THREE.Scene {
     this.add(this.controls.getObject());
     this.tiempo = Date.now();
     this.tiempoCannon = Date.now();
-    console.log("ultima")
   }
 
   pickObject(){
