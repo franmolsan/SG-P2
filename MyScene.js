@@ -43,7 +43,7 @@ class MyScene extends THREE.Scene {
     this.createBoxes(6);
     this.createSpheres(6);
     this.createCylinders(3);
-    this.createOctahedrons(2);
+    //this.createOctahedrons(2);
     //this.createCones(1);
 
     // Se añade a la gui los controles para manipular los elementos de esta clase
@@ -84,6 +84,10 @@ class MyScene extends THREE.Scene {
       this.pickedObjectIndex = indice;
       this.pickableObjects[indice].seleccionado = true;
       this.applicationMode = Estado.OBJECT_PICKED;
+
+      if (this.pickableObjects[indice].body.allowSleep){
+          this.pickableObjects[indice].start();
+      }
     }
   }
 
@@ -91,6 +95,14 @@ class MyScene extends THREE.Scene {
     this.pickableObjects[this.pickedObjectIndex].seleccionado = false;
     this.pickedObjectIndex = -1;
     this.applicationMode = Estado.NO_ACTION;
+  }
+
+  stopPickedObject(){
+    // si hemos seleccionado un objecto
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
+      object.stop();
+    }
   }
 
   removePickedObject(){
@@ -322,8 +334,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las cajas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x = Math.random() * 100;
-    var z =  Math.random() * 100;
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
     for (var i = 0; i < num_boxes; i++) {
       var y = 150 + i * 50;
 
@@ -341,8 +353,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las esferas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x = Math.random() * 100;
-    var z =  Math.random() * 100;
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
     for (var i = 0; i < num_spheres; i++) {
       var y = 150 + i * 50;
 
@@ -360,12 +372,12 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las esferas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x = Math.random() * 100;
-    var z =  Math.random() * 100;
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
     for (var i = 0; i < num_cylinders; i++) {
       var y = 150 + i * 50;
 
-      var cyl = new Cilindro (x,y,z)
+      var cyl = new Lata (x,y,z)
       this.world.addBody(cyl.body);
       this.add(cyl.mesh);
 
@@ -379,8 +391,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las esferas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x = Math.random() * 100;
-    var z =  Math.random() * 100;
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
     for (var i = 0; i < num_cones; i++) {
       var y = 150 + i * 50;
 
@@ -398,8 +410,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las esferas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x = Math.random() * 100;
-    var z =  Math.random() * 100;
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
     for (var i = 0; i < num_octahedrons; i++) {
       var y = 150 + i * 50;
 
@@ -448,12 +460,13 @@ class MyScene extends THREE.Scene {
    this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
    this.world.defaultContactMaterial.contactEquationRelaxation = 4;
 
-   solver.iterations = 7;
+   solver.iterations = 5;
    solver.tolerance = 0.1;
    var split = true;
    if (split) this.world.solver = new CANNON.SplitSolver(solver);
-   else this.world.solver = solver;
 
+   else this.world.solver = solver;
+   this.world.allowSleep = false;
    this.world.broadphase = new CANNON.NaiveBroadphase();
 
    // Create a slippery material (friction coefficient = 0.0)
@@ -475,6 +488,7 @@ class MyScene extends THREE.Scene {
    //this.sphereBody.addShape(sphereShape);
    this.sphereBody.position.set(0, 30, 0);
    this.sphereBody.linearDamping = 0.9;
+   this.sphereBody.allowSleep = false;
    this.world.addBody(this.sphereBody);
 
    // Create a plane
@@ -517,18 +531,6 @@ class MyScene extends THREE.Scene {
         objeto_seleccionado.followPlayer( this.controls.getObject().position.x + (50 * dir.x ),
                                           this.controls.getObject().position.y + (70 * dir.y),
                                           this.controls.getObject().position.z + (50 * dir.z ));
-
-
-
-
-        //console.log(this.world.bodies[0].velocity.x);
-        /*
-        this.pickableObjects[this.pickedObjectIndex].followPlayer(this.world.bodies[0].velocity.x * dir.x ,
-                                                                  this.world.bodies[0].velocity.y * dir.y,
-                                                                  this.world.bodies[0].velocity.z* dir.z );
-        */
-
-
       }
 
       // Update box positions

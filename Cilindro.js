@@ -1,25 +1,27 @@
 class Cilindro extends Objeto {
 
-  constructor(x,y,z) {
+  constructor(x,y,z,radius,materials) {
         super();
 
-        this.radio = 10;
-        this.altura = 20;
+        this.radio = radius;
+        this.altura = radius*2;
         this.segmentos = 30;
 
-        var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
+
         var shape = new CANNON.Cylinder(this.radio,this.radio,this.altura,this.segmentos);
 
         var cylinderGeometry = new THREE.CylinderGeometry(this.radio,this.radio,this.altura,this.segmentos);
         cylinderGeometry.rotateX(Math.PI/2); // rotarlo para que coincida con el Cilindro de cannon
 
         this.body= new CANNON.Body({ mass: 10, shape: shape });
-        // this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
-        this.mesh = new THREE.Mesh(cylinderGeometry, material);
+        this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+
+        this.mesh = new THREE.Mesh(cylinderGeometry, materials);
 
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
         this.mesh.castShadow = true;
+        this.body.allowSleep = false;
 
         this.add( this.mesh );
 

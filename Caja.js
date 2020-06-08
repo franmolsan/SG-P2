@@ -19,6 +19,7 @@ class Caja extends Objeto {
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
         this.mesh.castShadow = true;
+        this.body.allowSleep = false;
 
         this.add( this.mesh );
 

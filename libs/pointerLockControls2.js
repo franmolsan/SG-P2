@@ -86,6 +86,10 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
               scene.removePickedObject();
               break;
 
+            case 80: // r
+              scene.stopPickedObject();
+              break;
+
             case 69: // e
               if(scene.applicationMode === Estado.OBJECT_PICKED){
                 scene.unpickObject();
