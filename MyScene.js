@@ -40,11 +40,11 @@ class MyScene extends THREE.Scene {
     // Add boxes
     this.pickableObjects = []
     this.pickedObjectIndex = -1;
-    this.createBoxes(4);
-    this.createBoxes(2);
     this.createBoxes(6);
     this.createSpheres(6);
     this.createCylinders(3);
+    this.createOctahedrons(2);
+    //this.createCones(1);
 
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
@@ -93,18 +93,42 @@ class MyScene extends THREE.Scene {
     this.applicationMode = Estado.NO_ACTION;
   }
 
-  eraseObject(){
+  removePickedObject(){
     // si hemos seleccionado un objecto
     if (this.applicationMode === Estado.OBJECT_PICKED) {
-      var object = this.pickableObjects[this.pickedObjectIndex];
-      object.erase();
-      this.world.remove(object.body); // borrar parte física del objecto (body)
-      this.remove( object.mesh ); // borrar parte visual del objecto (mesh)
-      this.pickableObjects.splice(this.pickedObjectIndex, 1); // eliminar el objeto del conjunto de objetos existentes
+      this.removeObject(this.pickedObjectIndex);
     }
 
     this.pickedObjectIndex = -1;
     this.applicationMode = Estado.NO_ACTION;
+  }
+
+  removeObject(index){
+    var object = this.pickableObjects[index];
+    object.erase();
+    this.world.remove(object.body); // borrar parte física del objecto (body)
+    this.remove( object.mesh ); // borrar parte visual del objecto (mesh)
+    this.pickableObjects.splice(index, 1); // eliminar el objeto del conjunto de objetos existentes
+  }
+
+  removeAllObjectsOfType(type){
+    var object;
+    for (var i=0; i<this.pickableObjects.length; i++){
+      object = this.pickableObjects[i];
+      if (object.tipo === type){
+        this.removeObject(i);
+        i--; // como borramos, no podemos avanzar en el vector
+      }
+    }
+  }
+
+  removeAllObjects(){
+    var object;
+    for (var i=0; i<this.pickableObjects.length; i++){
+      object = this.pickableObjects[i];
+      this.removeObject(i);
+      i--; // como borramos, no podemos avanzar en el vector
+    }
   }
 
   wheelScaleObject(y){
@@ -120,6 +144,18 @@ class MyScene extends THREE.Scene {
 
         this.pickableObjects[this.pickedObjectIndex].wheelScale(deltaSize);
       }
+  }
+
+  throwObject(){
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
+
+      var dir = new THREE.Vector3();
+      this.camera.getWorldDirection(dir);
+      object.throw(dir.x, dir.y, dir.z);
+
+      this.unpickObject();
+    }
   }
 
   createCamera() {
@@ -170,11 +206,6 @@ class MyScene extends THREE.Scene {
     this.add(ground);
   }
 
-
-
-
-
-
   createGUI () {
     // Controles para el tamaño, la orientación y la posición de la caja
 
@@ -198,6 +229,23 @@ class MyScene extends THREE.Scene {
       this.addCilindro = function () {
         that.createCylinders(1);
       }
+
+      this.eraseBox = function () {
+        that.removeAllObjectsOfType("caja");
+      }
+
+      this.eraseSphere = function () {
+        that.removeAllObjectsOfType("esfera");
+      }
+
+      this.eraseCilindro = function () {
+        that.removeAllObjectsOfType("cilindro");
+      }
+
+      this.eraseAll = function () {
+        that.removeAllObjects();
+      }
+
     }
 
     // Se crea una sección para los controles de la caja
@@ -214,9 +262,16 @@ class MyScene extends THREE.Scene {
 
     var folderCreacion = gui.addFolder("Crear figuras");
 
-    folderCreacion.add (this.guiControls, 'addBox').name ('[ Añadir caja ]');
-    folderCreacion.add (this.guiControls, 'addSphere').name ('[ Añadir esfera ]');
-    folderCreacion.add (this.guiControls, 'addCilindro').name ('[ Añadir cilindro ]');
+    folderCreacion.add (this.guiControls, 'addBox').name ('Añadir caja');
+    folderCreacion.add (this.guiControls, 'addSphere').name ('Añadir esfera');
+    folderCreacion.add (this.guiControls, 'addCilindro').name ('Añadir cilindro');
+
+    var folderEliminar = gui.addFolder("Eliminar figuras");
+
+    folderEliminar.add (this.guiControls, 'eraseBox').name ('Eliminar cajas');
+    folderEliminar.add (this.guiControls, 'eraseSphere').name ('Eliminar esferas');
+    folderEliminar.add (this.guiControls, 'eraseCilindro').name ('Eliminar cilindros');
+    folderEliminar.add (this.guiControls, 'eraseAll').name ('Eliminar todos');
 
     return gui;
   }
@@ -315,6 +370,44 @@ class MyScene extends THREE.Scene {
       this.add(cyl.mesh);
 
       this.pickableObjects.push(cyl);
+    }
+  }
+
+  // crear cilindros
+  createCones(num_cones){
+
+    // las coordenadas x,z son iguales para todas las esferas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x = Math.random() * 100;
+    var z =  Math.random() * 100;
+    for (var i = 0; i < num_cones; i++) {
+      var y = 150 + i * 50;
+
+      var cone = new Cono (x,y,z)
+      this.world.addBody(cone.body);
+      this.add(cone.mesh);
+
+      this.pickableObjects.push(cone);
+    }
+  }
+
+  // crear octaedros
+  createOctahedrons(num_octahedrons){
+
+    // las coordenadas x,z son iguales para todas las esferas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x = Math.random() * 100;
+    var z =  Math.random() * 100;
+    for (var i = 0; i < num_octahedrons; i++) {
+      var y = 150 + i * 50;
+
+      var oct = new Octaedro (x,y,z)
+      this.world.addBody(oct.body);
+      this.add(oct.mesh);
+
+      this.pickableObjects.push(oct);
     }
   }
 
@@ -419,10 +512,11 @@ class MyScene extends THREE.Scene {
       if (this.applicationMode === Estado.OBJECT_PICKED){
         var dir = new THREE.Vector3();
         this.camera.getWorldDirection(dir);
+        var objeto_seleccionado = this.pickableObjects[this.pickedObjectIndex];
 
-        this.pickableObjects[this.pickedObjectIndex].followPlayer(this.controls.getObject().position.x + (50 * dir.x ),
-                                                                  this.controls.getObject().position.y + (70 * dir.y),
-                                                                  this.controls.getObject().position.z + (50 * dir.z ));
+        objeto_seleccionado.followPlayer( this.controls.getObject().position.x + (50 * dir.x ),
+                                          this.controls.getObject().position.y + (70 * dir.y),
+                                          this.controls.getObject().position.z + (50 * dir.z ));
 
 
 

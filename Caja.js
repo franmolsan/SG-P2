@@ -29,6 +29,8 @@ class Caja extends Objeto {
 
         // para seleccionar el objeto
         this.seleccionado = false;
+
+        this.tipo = "caja";
   }
 
   followPlayer(x, y, z){

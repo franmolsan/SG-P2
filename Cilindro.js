@@ -1,4 +1,3 @@
-
 class Cilindro extends Objeto {
 
   constructor(x,y,z) {
@@ -32,7 +31,7 @@ class Cilindro extends Objeto {
         // para seleccionar el objeto
         this.seleccionado = false;
 
-        console.log(this.body)
+        this.tipo = "cilindro";
   }
 
   followPlayer(x, y, z){

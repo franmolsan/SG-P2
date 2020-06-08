@@ -83,7 +83,7 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
                 break;
 
             case 82: // r
-              scene.eraseObject();
+              scene.removePickedObject();
               break;
 
             case 69: // e
@@ -93,6 +93,10 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
               else {
                 scene.pickObject();
               }
+              break;
+
+            case 84: // t
+              scene.throwObject();
               break;
 
             case 32: // space

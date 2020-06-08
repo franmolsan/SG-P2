@@ -1,14 +1,36 @@
-
-class Esfera extends Objeto {
+class Octaedro extends Objeto {
 
   constructor(x,y,z) {
         super();
         var radio = 10;
         var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-        var shape = new CANNON.Sphere(radio);
-        var sphereGeometry = new THREE.SphereGeometry(radio, 30, 30);
+        var sphereGeometry = new THREE.SphereGeometry(radio, 4, 2);
 
-        this.body= new CANNON.Body({ mass: 10, shape: shape });
+        /*
+        var verts=[], faces=[], offset;
+
+        // Get vertices
+        for(var j=0; j<sphereGeometry.vertices.length; j+=3){
+            verts.push(new CANNON.Vec3( sphereGeometry.vertices[j]  ,
+                                        sphereGeometry.vertices[j+1],
+                                        sphereGeometry.vertices[j+2]));
+        }
+
+        // Get faces
+        for(var j=0; j<sphereGeometry.faces.length; j+=3){
+            faces.push([sphereGeometry.faces[j],sphereGeometry.faces[j+1],sphereGeometry.faces[j+2]]);
+        }
+
+        var shape = new CANNON.ConvexPolyhedron(verts,faces);
+
+        this.body= new CANNON.Body({ mass: 10});
+        this.body.addShape(shape)
+        */
+        var shape = new CANNON.Sphere(radio)
+        console.log(shape);
+        this.body= new CANNON.Body({ mass: 10, shape: shape});
+        console.log(this.body)
+
         this.mesh = new THREE.Mesh(sphereGeometry, material);
 
         this.body.position.set(x, y, z);

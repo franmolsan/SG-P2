@@ -1,15 +1,21 @@
-
-class Esfera extends Objeto {
+class Cono extends Objeto {
 
   constructor(x,y,z) {
         super();
-        var radio = 10;
+
+        this.radio = 10;
+        this.altura = 20;
+        this.segmentos = 30;
+
         var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-        var shape = new CANNON.Sphere(radio);
-        var sphereGeometry = new THREE.SphereGeometry(radio, 30, 30);
+        var shape = new CANNON.Cylinder(1,this.radio,this.altura,this.segmentos);
+
+        var cylinderGeometry = new THREE.CylinderGeometry(1,this.radio,this.altura,this.segmentos);
+        cylinderGeometry.rotateX(Math.PI/2); // rotarlo para que coincida con el Cilindro de cannon
 
         this.body= new CANNON.Body({ mass: 10, shape: shape });
-        this.mesh = new THREE.Mesh(sphereGeometry, material);
+        // this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+        this.mesh = new THREE.Mesh(cylinderGeometry, material);
 
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
@@ -25,14 +31,14 @@ class Esfera extends Objeto {
         // para seleccionar el objeto
         this.seleccionado = false;
 
-        this.tipo = "esfera";
+        this.tipo = "cono";
   }
 
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      if(y < this.body.shapes[0].radius){
-        y = this.body.shapes[0].radius;
+      if(y < this.radio * this.size){
+        y = this.radio * this.size;
       }
 
       this.body.position.x = x;
@@ -61,7 +67,9 @@ class Esfera extends Objeto {
     // escalar física de cannon
     var dimensions = 10*this.size;
 
-    this.body.shapes[0].radius = dimensions;
+    this.body.shapes = [];
+    var shape = new CANNON.Cylinder(1,this.radio*this.size,this.altura*this.size,this.segmentos*this.size);
+    this.body.addShape(shape);
     this.body.mass = 10 * Math.pow(this.size,3);
 
     this.body.shapes[0].updateBoundingSphereRadius ();
