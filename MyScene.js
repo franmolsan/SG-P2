@@ -346,8 +346,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las cajas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
+    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
     for (var i = 0; i < num_boxes; i++) {
       var y = 150 + i * 50;
 
@@ -460,7 +460,7 @@ class MyScene extends THREE.Scene {
    this.world.broadphase = new CANNON.NaiveBroadphase();
 
    // Create a slippery material (friction coefficient = 0.0)
-   var physicsMaterial = new CANNON.Material();
+   var physicsMaterial = new CANNON.Material("slipperyMaterial");
    var physicsContactMaterial = new CANNON.ContactMaterial(
      physicsMaterial,
      physicsMaterial,
