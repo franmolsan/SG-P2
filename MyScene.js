@@ -440,7 +440,7 @@ class MyScene extends THREE.Scene {
 
    // Crear el mundo
    this.world = new CANNON.World();
-   this.world.gravity.set(0, -100, 0);
+   this.world.gravity.set(0, -200, 0);
    this.world.quatNormalizeSkip = 0;
    this.world.quatNormalizeFast = false;
 
@@ -477,6 +477,7 @@ class MyScene extends THREE.Scene {
    //this.sphereBody.addShape(sphereShape);
    this.sphereBody.position.set(0, 30, 0);
    this.sphereBody.linearDamping = 0.9;
+   this.sphereBody.angularDamping = 0.9;
    this.sphereBody.allowSleep = false;
    this.world.addBody(this.sphereBody);
 

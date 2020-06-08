@@ -16,6 +16,9 @@ class Esfera extends Objeto {
         this.mesh.castShadow = true;
         this.body.allowSleep = false;
 
+        this.body.linearDamping = 0.9;
+        this.body.angularDamping = 0.9;
+
         this.add( this.mesh );
 
         // para escalar con la rueda del ratón

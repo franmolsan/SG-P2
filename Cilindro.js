@@ -16,6 +16,9 @@ class Cilindro extends Objeto {
         this.body= new CANNON.Body({ mass: 10, shape: shape });
         this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
 
+        this.body.linearDamping = 0.9;
+        this.body.angularDamping = 0.9;
+
         this.mesh = new THREE.Mesh(cylinderGeometry, materials);
 
         this.body.position.set(x, y, z);
