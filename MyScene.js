@@ -1,4 +1,4 @@
-/// La clase fachada del modelo
+// La clase fachada del modelo
 /**
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
@@ -42,9 +42,9 @@ class MyScene extends THREE.Scene {
     this.pickedObjectIndex = -1;
     this.createBoxes(6);
     this.createSpheres(6);
-    this.createCylinders(3);
-    //this.createOctahedrons(2);
-    //this.createCones(1);
+    this.createLatas(3);
+    this.createBarriles(2);
+
 
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
@@ -240,8 +240,12 @@ class MyScene extends THREE.Scene {
         that.createSpheres(1);
       }
 
-      this.addCilindro = function () {
-        that.createCylinders(1);
+      this.addLata = function () {
+        that.createLatas(1);
+      }
+
+      this.addBarril = function () {
+        that.createBarriles(1);
       }
 
       this.eraseBox = function () {
@@ -252,8 +256,12 @@ class MyScene extends THREE.Scene {
         that.removeAllObjectsOfType("esfera");
       }
 
-      this.eraseCilindro = function () {
-        that.removeAllObjectsOfType("cilindro");
+      this.eraseLata = function () {
+        that.removeAllObjectsOfType("lata");
+      }
+
+      this.eraseBarril = function () {
+        that.removeAllObjectsOfType("barril");
       }
 
       this.eraseAll = function () {
@@ -278,13 +286,15 @@ class MyScene extends THREE.Scene {
 
     folderCreacion.add (this.guiControls, 'addBox').name ('Añadir caja');
     folderCreacion.add (this.guiControls, 'addSphere').name ('Añadir esfera');
-    folderCreacion.add (this.guiControls, 'addCilindro').name ('Añadir cilindro');
+    folderCreacion.add (this.guiControls, 'addLata').name ('Añadir lata');
+    folderCreacion.add (this.guiControls, 'addBarril').name ('Añadir barril');
 
     var folderEliminar = gui.addFolder("Eliminar figuras");
 
     folderEliminar.add (this.guiControls, 'eraseBox').name ('Eliminar cajas');
     folderEliminar.add (this.guiControls, 'eraseSphere').name ('Eliminar esferas');
-    folderEliminar.add (this.guiControls, 'eraseCilindro').name ('Eliminar cilindros');
+    folderEliminar.add (this.guiControls, 'eraseLata').name ('Eliminar latas');
+    folderEliminar.add (this.guiControls, 'eraseBarril').name ('Eliminar barriles');
     folderEliminar.add (this.guiControls, 'eraseAll').name ('Eliminar todos');
 
     return gui;
@@ -368,15 +378,15 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  // crear cilindros
-  createCylinders(num_cylinders){
+  // crear latas
+  createLatas(num_latas){
 
-    // las coordenadas x,z son iguales para todas las esferas
+    // las coordenadas x,z son iguales para todas las latas
     // la coordenada y va aumentando
     // así aparecerán apiladas
     var x =  Math.random() * 300 ;
     var z =  Math.random() * 300;
-    for (var i = 0; i < num_cylinders; i++) {
+    for (var i = 0; i < num_latas; i++) {
       var y = 150 + i * 50;
 
       var cyl = new Lata (x,y,z)
@@ -387,41 +397,19 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  // crear cilindros
-  createCones(num_cones){
+  // crear barriles
+  createBarriles(num_barriles){
 
-    // las coordenadas x,z son iguales para todas las esferas
-    // la coordenada y va aumentando
-    // así aparecerán apiladas
     var x =  Math.random() * 300 ;
     var z =  Math.random() * 300;
-    for (var i = 0; i < num_cones; i++) {
+    for (var i = 0; i < num_barriles; i++) {
       var y = 150 + i * 50;
 
-      var cone = new Cono (x,y,z)
-      this.world.addBody(cone.body);
-      this.add(cone.mesh);
+      var cyl = new Barril (x,y,z)
+      this.world.addBody(cyl.body);
+      this.add(cyl.mesh);
 
-      this.pickableObjects.push(cone);
-    }
-  }
-
-  // crear octaedros
-  createOctahedrons(num_octahedrons){
-
-    // las coordenadas x,z son iguales para todas las esferas
-    // la coordenada y va aumentando
-    // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
-    for (var i = 0; i < num_octahedrons; i++) {
-      var y = 150 + i * 50;
-
-      var oct = new Octaedro (x,y,z)
-      this.world.addBody(oct.body);
-      this.add(oct.mesh);
-
-      this.pickableObjects.push(oct);
+      this.pickableObjects.push(cyl);
     }
   }
 
@@ -453,7 +441,7 @@ class MyScene extends THREE.Scene {
 
    // Crear el mundo
    this.world = new CANNON.World();
-   this.world.gravity.set(0, -300, 0);
+   this.world.gravity.set(0, -100, 0);
    this.world.quatNormalizeSkip = 0;
    this.world.quatNormalizeFast = false;
 
@@ -523,8 +511,8 @@ class MyScene extends THREE.Scene {
     //this.tiempo = Date.now();
 
     if (this.controls.enabled) {
-      //this.world.step(1 / 60)
-      this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10);
+      this.world.step(1 / 60)
+      //this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10);
 
       if (this.applicationMode === Estado.OBJECT_PICKED){
         var dir = new THREE.Vector3();

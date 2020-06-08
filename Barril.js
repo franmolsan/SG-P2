@@ -8,9 +8,9 @@ class Barril extends Cilindro {
         var material_top_bot = new THREE.MeshPhongMaterial({map: textura_top_bot});
 
         const materials = [material_central, material_top_bot, material_top_bot]
-        var radio = 3;
-        super(x,y,z,3, materials);
-        // this.tipo = "lata";
+        var radio = 10;
+        super(x,y,z,radio, materials);
+        this.tipo = "barril";
   }
 
 }

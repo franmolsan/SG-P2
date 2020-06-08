@@ -9,8 +9,8 @@ class Lata extends Cilindro {
 
         const materials = [material_central, material_top_bot, material_top_bot]
         var radio = 3;
-        super(x,y,z,3, materials);
-        // this.tipo = "lata";
+        super(x,y,z,radio, materials);
+        this.tipo = "lata";
   }
 
 }
