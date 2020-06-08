@@ -53,6 +53,8 @@ class MyScene extends THREE.Scene {
     this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
     this.add(this.controls.getObject());
     this.tiempo = Date.now();
+    this.tiempoCannon = Date.now();
+    console.log("ultima")
   }
 
   pickObject(){
@@ -451,7 +453,7 @@ class MyScene extends THREE.Scene {
 
    // Crear el mundo
    this.world = new CANNON.World();
-   this.world.gravity.set(0, -100, 0);
+   this.world.gravity.set(0, -300, 0);
    this.world.quatNormalizeSkip = 0;
    this.world.quatNormalizeFast = false;
 
@@ -521,7 +523,8 @@ class MyScene extends THREE.Scene {
     //this.tiempo = Date.now();
 
     if (this.controls.enabled) {
-      this.world.step(1 / 60);
+      //this.world.step(1 / 60)
+      this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10);
 
       if (this.applicationMode === Estado.OBJECT_PICKED){
         var dir = new THREE.Vector3();
