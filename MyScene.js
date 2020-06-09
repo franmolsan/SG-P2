@@ -9,15 +9,48 @@ class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
 
+    // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
+    this.renderer = this.createRenderer(myCanvas);
+
+    const loader = new THREE.TextureLoader();
+    var textura1 = loader.load('../imgs/posx.jpg');
+    var textura2 = loader.load('../imgs/negx.jpg');
+    var textura3 = loader.load('../imgs/posy.jpg');
+    var textura4 = loader.load('../imgs/negy.jpg');
+    //textura4.anisotropy = this.renderer.getMaxAnisotropy();
+    // textura4.generateMipmaps = false;
+    textura4.minFilter = THREE.LinearFilter;
+    //textura4.anisotropy = this.renderer.getMaxAnisotropy();
+    var textura5 = loader.load('../imgs/posz.jpg');
+    var textura6 = loader.load('../imgs/negz.jpg');
+
+    var materials = [];
+
+    materials.push(new THREE.MeshBasicMaterial({map: textura1}));
+    materials.push(new THREE.MeshBasicMaterial({map: textura2}));
+    materials.push(new THREE.MeshBasicMaterial({map: textura3}));
+    materials.push(new THREE.MeshBasicMaterial({map: textura4}));
+    materials.push(new THREE.MeshBasicMaterial({map: textura5}));
+    materials.push(new THREE.MeshBasicMaterial({map: textura6}));
+
+
+    for (var i=0; i<6; i++)
+      materials[i].side = THREE.BackSide
+
+
+    var skyboxGeo = new THREE.BoxGeometry(10000,10000,10000)
+    var skybox = new THREE.Mesh(skyboxGeo,materials)
+    skybox.position.y = 1000.1;
+    this.add(skybox);
+
     this.sphereBody;
     // estado de la aplicación: no acción (0)
     this.applicationMode = Estado.NO_ACTION;
 
     // fondo
-    this.background = new THREE.Color( 0x000000 );
+    //this.background = new THREE.Color( 0x000000 );
 
-    // Lo primero, crear el visualizador, pasándole el lienzo sobre el que realizar los renderizados.
-    this.renderer = this.createRenderer(myCanvas);
+
 
     // Construimos los distinos elementos que tendremos en la escena
 
@@ -191,8 +224,8 @@ class MyScene extends THREE.Scene {
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
-      1,
-      1000
+      0.1,
+      30000
     );
 
     // También se indica dónde se coloca
@@ -215,7 +248,7 @@ class MyScene extends THREE.Scene {
     var texture = new THREE.TextureLoader().load(
       "imgs/textura-ajedrezada-grande.jpg"
     );
-    var materialGround = new THREE.MeshPhongMaterial({ map: texture });
+    var materialGround = new THREE.MeshPhongMaterial(); // { map: texture }
 
     // Ya se puede construir el Mesh
     var ground = new THREE.Mesh(geometryGround, materialGround);
@@ -640,6 +673,7 @@ class MyScene extends THREE.Scene {
      new CANNON.Vec3(1, 0, 0),
      -Math.PI / 2
    );
+   //groundBody.position.y = -1000;
    this.world.addBody(groundBody);
  }
 

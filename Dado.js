@@ -1,12 +1,13 @@
 class Dado extends Cubo {
 
   constructor(x,y,z) {
-    var textura1 = new THREE.TextureLoader().load('../imgs/num1.png');
-    var textura2 = new THREE.TextureLoader().load('../imgs/num2.png');
-    var textura3 = new THREE.TextureLoader().load('../imgs/num3.png');
-    var textura4 = new THREE.TextureLoader().load('../imgs/num4.png');
-    var textura5 = new THREE.TextureLoader().load('../imgs/num5.png');
-    var textura6 = new THREE.TextureLoader().load('../imgs/num6.png');
+    var loader = new THREE.TextureLoader();
+    var textura1 = loader.load('../imgs/num1.png');
+    var textura2 = loader.load('../imgs/num2.png');
+    var textura3 = loader.load('../imgs/num3.png');
+    var textura4 = loader.load('../imgs/num4.png');
+    var textura5 = loader.load('../imgs/num5.png');
+    var textura6 = loader.load('../imgs/num6.png');
 
     var material1 = new THREE.MeshPhongMaterial({map: textura1});
     var material2 = new THREE.MeshPhongMaterial({map: textura2});

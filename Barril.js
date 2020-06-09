@@ -1,8 +1,10 @@
 class Barril extends Cilindro {
 
   constructor(x,y,z) {
-        var textura_central = new THREE.TextureLoader().load('../imgs/centro.png');
-        var textura_top_bot = new THREE.TextureLoader().load('../imgs/tapa.png');
+        var loader = new THREE.TextureLoader();
+
+        var textura_central = loader.load('../imgs/centro.png');
+        var textura_top_bot = loader.load('../imgs/tapa.png');
 
         var material_central = new THREE.MeshPhongMaterial({map: textura_central});
         var material_top_bot = new THREE.MeshPhongMaterial({map: textura_top_bot});

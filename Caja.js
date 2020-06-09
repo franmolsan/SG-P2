@@ -1,7 +1,9 @@
 class Caja extends Cubo {
 
   constructor(x,y,z) {
-        var textura = new THREE.TextureLoader().load('../imgs/caja.jpg');
+        var loader = new THREE.TextureLoader();
+
+        var textura = new loader.load('../imgs/caja.jpg');
         var material = new THREE.MeshPhongMaterial({map: textura});
         var mitad = 10;
         var masa = 15;
