@@ -41,7 +41,7 @@ class MyScene extends THREE.Scene {
     this.pickableObjects = []
     this.pickedObjectIndex = -1;
     this.createBoxes(6);
-    this.createSpheres(6);
+    this.createPelotas(6);
     this.createLatas(3);
     this.createBarriles(2);
 
@@ -53,7 +53,19 @@ class MyScene extends THREE.Scene {
     this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
     this.add(this.controls.getObject());
     this.tiempo = Date.now();
-    this.tiempoCannon = Date.now();
+    this.tiempoCannon = this.tiempo;
+
+    /*
+    function actualizaWorld(that){
+     if (that.controls.enabled){
+        that.world.step(1 / 60, ((Date.now() - this.tiempoCannon) / 1000), 10);
+        that.tiempoCannon = Date.now();
+      }
+    }
+
+    setInterval(actualizaWorld, 16.666667, this)
+    */
+
   }
 
   pickObject(){
@@ -235,8 +247,24 @@ class MyScene extends THREE.Scene {
         that.createBoxes(1);
       }
 
-      this.addSphere = function () {
-        that.createSpheres(1);
+      this.addRubik = function () {
+        that.createRubik(1);
+      }
+
+      this.addDado = function () {
+        that.createDado(1);
+      }
+
+      this.addPelota = function () {
+        that.createPelotas(1);
+      }
+
+      this.addTierra = function () {
+        that.createTierras(1);
+      }
+
+      this.addNaraja = function () {
+        that.createNaranjas(1);
       }
 
       this.addLata = function () {
@@ -247,12 +275,32 @@ class MyScene extends THREE.Scene {
         that.createBarriles(1);
       }
 
+      this.addTronco = function () {
+        that.createTroncos(1);
+      }
+
       this.eraseBox = function () {
         that.removeAllObjectsOfType("caja");
       }
 
-      this.eraseSphere = function () {
-        that.removeAllObjectsOfType("esfera");
+      this.eraseRubik = function () {
+        that.removeAllObjectsOfType("rubik");
+      }
+
+      this.eraseDado = function () {
+        that.removeAllObjectsOfType("dado");
+      }
+
+      this.erasePelota = function () {
+        that.removeAllObjectsOfType("pelota");
+      }
+
+      this.eraseTierra = function () {
+        that.removeAllObjectsOfType("tierra");
+      }
+
+      this.eraseNaranja = function () {
+        that.removeAllObjectsOfType("naranja");
       }
 
       this.eraseLata = function () {
@@ -261,6 +309,10 @@ class MyScene extends THREE.Scene {
 
       this.eraseBarril = function () {
         that.removeAllObjectsOfType("barril");
+      }
+
+      this.eraseTronco = function () {
+        that.removeAllObjectsOfType("tronco");
       }
 
       this.eraseAll = function () {
@@ -284,16 +336,27 @@ class MyScene extends THREE.Scene {
     var folderCreacion = gui.addFolder("Crear figuras");
 
     folderCreacion.add (this.guiControls, 'addBox').name ('Añadir caja');
-    folderCreacion.add (this.guiControls, 'addSphere').name ('Añadir esfera');
+    folderCreacion.add (this.guiControls, 'addRubik').name ('Añadir rubik');
+    folderCreacion.add (this.guiControls, 'addDado').name ('Añadir dado');
+    folderCreacion.add (this.guiControls, 'addPelota').name ('Añadir pelota');
+    folderCreacion.add (this.guiControls, 'addTierra').name ('Añadir Tierra');
+    folderCreacion.add (this.guiControls, 'addNaraja').name ('Añadir naranja');
     folderCreacion.add (this.guiControls, 'addLata').name ('Añadir lata');
     folderCreacion.add (this.guiControls, 'addBarril').name ('Añadir barril');
+    folderCreacion.add (this.guiControls, 'addTronco').name ('Añadir tronco');
+
 
     var folderEliminar = gui.addFolder("Eliminar figuras");
 
     folderEliminar.add (this.guiControls, 'eraseBox').name ('Eliminar cajas');
-    folderEliminar.add (this.guiControls, 'eraseSphere').name ('Eliminar esferas');
+    folderEliminar.add (this.guiControls, 'eraseRubik').name ('Eliminar rubik')
+    folderEliminar.add (this.guiControls, 'eraseDado').name ('Eliminar dado')
+    folderEliminar.add (this.guiControls, 'erasePelota').name ('Eliminar pelotas');
+    folderEliminar.add (this.guiControls, 'eraseTierra').name ('Eliminar Tierras');
+    folderEliminar.add (this.guiControls, 'eraseNaranja').name ('Eliminar naranjas');
     folderEliminar.add (this.guiControls, 'eraseLata').name ('Eliminar latas');
     folderEliminar.add (this.guiControls, 'eraseBarril').name ('Eliminar barriles');
+    folderEliminar.add (this.guiControls, 'eraseTronco').name ('Eliminar troncos');
     folderEliminar.add (this.guiControls, 'eraseAll').name ('Eliminar todos');
 
     return gui;
@@ -358,22 +421,94 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  // crear esferas
-  createSpheres(num_spheres){
+  createRubik(num_rubik){
 
-    // las coordenadas x,z son iguales para todas las esferas
+    // las coordenadas x,z son iguales para todas las cajas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
+    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
+    for (var i = 0; i < num_rubik; i++) {
+      var y = 150 + i * 50;
+
+      var rubik = new Rubik (x,y,z)
+      this.world.addBody(rubik.body);
+      this.add(rubik.mesh);
+
+      this.pickableObjects.push(rubik);
+    }
+  }
+
+  createDado(num_dados){
+
+    // las coordenadas x,z son iguales para todas las cajas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
+    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
+    for (var i = 0; i < num_dados; i++) {
+      var y = 150 + i * 50;
+
+      var dado = new Dado (x,y,z)
+      this.world.addBody(dado.body);
+      this.add(dado.mesh);
+
+      this.pickableObjects.push(dado);
+    }
+  }
+
+  // crear pelotas
+  createPelotas(num_pelotas){
+
+    // las coordenadas x,z son iguales para todas las pelotas
     // la coordenada y va aumentando
     // así aparecerán apiladas
     var x =  Math.random() * 300 ;
     var z =  Math.random() * 300;
-    for (var i = 0; i < num_spheres; i++) {
+    for (var i = 0; i < num_pelotas; i++) {
       var y = 150 + i * 50;
 
-      var esfera = new Esfera (x,y,z)
-      this.world.addBody(esfera.body);
-      this.add(esfera.mesh);
+      var p = new Pelota (x,y,z)
+      this.world.addBody(p.body);
+      this.add(p.mesh);
 
-      this.pickableObjects.push(esfera);
+      this.pickableObjects.push(p);
+    }
+  }
+
+  createTierras(num_tierras){
+
+    // las coordenadas x,z son iguales para todas las pelotas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
+    for (var i = 0; i < num_tierras; i++) {
+      var y = 150 + i * 50;
+
+      var p = new Tierra (x,y,z)
+      this.world.addBody(p.body);
+      this.add(p.mesh);
+
+      this.pickableObjects.push(p);
+    }
+  }
+
+  createNaranjas(num_naranjas){
+
+    // las coordenadas x,z son iguales para todas las pelotas
+    // la coordenada y va aumentando
+    // así aparecerán apiladas
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
+    for (var i = 0; i < num_naranjas; i++) {
+      var y = 150 + i * 50;
+
+      var p = new Naranja (x,y,z)
+      this.world.addBody(p.body);
+      this.add(p.mesh);
+
+      this.pickableObjects.push(p);
     }
   }
 
@@ -405,6 +540,22 @@ class MyScene extends THREE.Scene {
       var y = 150 + i * 50;
 
       var cyl = new Barril (x,y,z)
+      this.world.addBody(cyl.body);
+      this.add(cyl.mesh);
+
+      this.pickableObjects.push(cyl);
+    }
+  }
+
+  // crear Troncos
+  createTroncos(num_troncos){
+
+    var x =  Math.random() * 300 ;
+    var z =  Math.random() * 300;
+    for (var i = 0; i < num_troncos; i++) {
+      var y = 150 + i * 50;
+
+      var cyl = new Tronco (x,y,z)
       this.world.addBody(cyl.body);
       this.add(cyl.mesh);
 
@@ -519,9 +670,9 @@ class MyScene extends THREE.Scene {
         this.camera.getWorldDirection(dir);
         var objeto_seleccionado = this.pickableObjects[this.pickedObjectIndex];
 
-        objeto_seleccionado.followPlayer( this.controls.getObject().position.x + (50 * dir.x ),
+        objeto_seleccionado.followPlayer( this.controls.getObject().position.x + (70* dir.x ),
                                           this.controls.getObject().position.y + (70 * dir.y),
-                                          this.controls.getObject().position.z + (50 * dir.z ));
+                                          this.controls.getObject().position.z + (70 * dir.z ));
       }
 
       // Update box positions
@@ -536,6 +687,7 @@ class MyScene extends THREE.Scene {
     this.renderer.render(this, this.getCamera());
     this.tiempo = Date.now();
   }
+
 }
 
 

@@ -9,7 +9,8 @@ class Barril extends Cilindro {
 
         const materials = [material_central, material_top_bot, material_top_bot]
         var radio = 10;
-        super(x,y,z,radio, materials);
+        var masa = 8;
+        super(x,y,z,masa,radio, materials);
         this.tipo = "barril";
   }
 

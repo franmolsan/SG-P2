@@ -1,15 +1,21 @@
 
-class Esfera extends Objeto {
+class Cubo extends Objeto {
 
-  constructor(x,y,z,masa, radius,material) {
+  constructor(x,y,z,masa,mitad,material) {
         super();
-        this.masa_base = masa
-        this.radio_base = radius;
-        var shape = new CANNON.Sphere(radius);
-        var sphereGeometry = new THREE.SphereGeometry(radius, 30, 30);
+
+        this.mitad_base = mitad;
+        this.masa_base = masa;
+        var halfExtents = new CANNON.Vec3(mitad, mitad, mitad);
+        var shape = new CANNON.Box(halfExtents);
+        var boxGeometry = new THREE.BoxGeometry(
+          halfExtents.x * 2,
+          halfExtents.y * 2,
+          halfExtents.z * 2
+        );
 
         this.body= new CANNON.Body({ mass: masa, shape: shape });
-        this.mesh = new THREE.Mesh(sphereGeometry, material);
+        this.mesh = new THREE.Mesh(boxGeometry, material);
 
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
@@ -29,14 +35,14 @@ class Esfera extends Objeto {
         // para seleccionar el objeto
         this.seleccionado = false;
 
-        this.tipo = "esfera";
+        this.tipo = "cubo";
   }
 
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      if(y < this.body.shapes[0].radius){
-        y = this.body.shapes[0].radius;
+      if(y < this.body.shapes[0].halfExtents.y){
+        y = this.body.shapes[0].halfExtents.y;
       }
 
       this.body.position.x = x;
@@ -63,12 +69,15 @@ class Esfera extends Objeto {
     this.mesh.scale.z = this.size;
 
     // escalar física de cannon
-    var dimensions = this.radio_base*this.size;
+    var dimensions = this.mitad_base*this.size;
 
-    this.body.shapes[0].radius = dimensions;
+    this.body.shapes[0].halfExtents.x = dimensions;
+    this.body.shapes[0].halfExtents.y = dimensions;
+    this.body.shapes[0].halfExtents.z = dimensions;
     this.body.mass = this.masa_base * Math.pow(this.size,3);
 
-    this.body.shapes[0].updateBoundingSphereRadius ();
+    this.body.shapes[0].boundingSphereRadiusNeedsUpdate = true;
+    this.body.shapes[0].updateConvexPolyhedronRepresentation();
 
     this.body.updateBoundingRadius();
     this.body.updateMassProperties();

@@ -1,23 +1,24 @@
 class Cilindro extends Objeto {
 
-  constructor(x,y,z,radius,materials) {
+  constructor(x,y,z, masa, radius,materials) {
         super();
 
-        this.radio = radius;
+        this.masa_base = masa;
+        this.radio_base = radius;
         this.altura = radius*2;
         this.segmentos = 30;
 
 
-        var shape = new CANNON.Cylinder(this.radio,this.radio,this.altura,this.segmentos);
+        var shape = new CANNON.Cylinder(this.radio_base,this.radio_base,this.altura,this.segmentos);
 
-        var cylinderGeometry = new THREE.CylinderGeometry(this.radio,this.radio,this.altura,this.segmentos);
+        var cylinderGeometry = new THREE.CylinderGeometry(this.radio_base,this.radio_base,this.altura,this.segmentos);
         cylinderGeometry.rotateX(Math.PI/2); // rotarlo para que coincida con el Cilindro de cannon
 
-        this.body= new CANNON.Body({ mass: 10, shape: shape });
+        this.body= new CANNON.Body({ mass: masa, shape: shape });
         this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
 
-        this.body.linearDamping = 0.9;
-        this.body.angularDamping = 0.9;
+        this.body.linearDamping = 0.5;
+        this.body.angularDamping = 0.5;
 
         this.mesh = new THREE.Mesh(cylinderGeometry, materials);
 
@@ -42,8 +43,8 @@ class Cilindro extends Objeto {
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      if(y < this.radio * this.size){
-        y = this.radio * this.size;
+      if(y < this.radio_base * this.size){
+        y = this.radio_base * this.size;
       }
 
       this.body.position.x = x;
@@ -70,12 +71,12 @@ class Cilindro extends Objeto {
     this.mesh.scale.z = this.size;
 
     // escalar física de cannon
-    var dimensions = 10*this.size;
+    var dimensions = this.radio_base*this.size;
 
     this.body.shapes = [];
-    var shape = new CANNON.Cylinder(this.radio*this.size,this.radio*this.size,this.altura*this.size,this.segmentos*this.size);
+    var shape = new CANNON.Cylinder(dimensions,dimensions,this.altura*this.size,this.segmentos*this.size);
     this.body.addShape(shape);
-    this.body.mass = 10 * Math.pow(this.size,3);
+    this.body.mass = this.masa_base * Math.pow(this.size,3);
 
     this.body.shapes[0].updateBoundingSphereRadius ();
 
