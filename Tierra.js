@@ -3,7 +3,7 @@ class Tierra extends Esfera {
   constructor(x,y,z) {
         var loader = new THREE.TextureLoader();
 
-        var textura = loader.load('../imgs/tierra.jpg');
+        var textura = loader.load('./imgs/tierra.jpg');
         var material = new THREE.MeshPhongMaterial({map: textura});
 
         var radio = 30;

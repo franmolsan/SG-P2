@@ -1,7 +1,7 @@
 class Pelota extends Esfera {
 
   constructor(x,y,z) {
-        var textura = new THREE.TextureLoader().load('../imgs/pelota.jpg');
+        var textura = new THREE.TextureLoader().load('./imgs/pelota.jpg');
         var material = new THREE.MeshPhongMaterial({map: textura});
 
         var radio = 3;

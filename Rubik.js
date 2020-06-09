@@ -3,12 +3,12 @@ class Rubik extends Cubo {
   constructor(x,y,z) {
         var loader = new THREE.TextureLoader();
 
-        var textura1 = loader.load('../imgs/rojo.png');
-        var textura2 = loader.load('../imgs/naranja_rubik.png');
-        var textura3 = loader.load('../imgs/azul.png');
-        var textura4 = loader.load('../imgs/blanco.png');
-        var textura5 = loader.load('../imgs/verde.png');
-        var textura6 = loader.load('../imgs/amarillo.png');
+        var textura1 = loader.load('./imgs/rojo.png');
+        var textura2 = loader.load('./imgs/naranja_rubik.png');
+        var textura3 = loader.load('./imgs/azul.png');
+        var textura4 = loader.load('./imgs/blanco.png');
+        var textura5 = loader.load('./imgs/verde.png');
+        var textura6 = loader.load('./imgs/amarillo.png');
 
         var material1 = new THREE.MeshPhongMaterial({map: textura1});
         var material2 = new THREE.MeshPhongMaterial({map: textura2});

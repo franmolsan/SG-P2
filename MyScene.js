@@ -13,16 +13,16 @@ class MyScene extends THREE.Scene {
     this.renderer = this.createRenderer(myCanvas);
 
     const loader = new THREE.TextureLoader();
-    var textura1 = loader.load('/imgs/posx.jpg');
-    var textura2 = loader.load('/imgs/negx.jpg');
-    var textura3 = loader.load('/imgs/posy.jpg');
-    var textura4 = loader.load('/imgs/negy.jpg');
+    var textura1 = loader.load('./imgs/posx.jpg');
+    var textura2 = loader.load('./imgs/negx.jpg');
+    var textura3 = loader.load('./imgs/posy.jpg');
+    var textura4 = loader.load('./imgs/negy.jpg');
     //textura4.anisotropy = this.renderer.getMaxAnisotropy();
     // textura4.generateMipmaps = false;
     textura4.minFilter = THREE.LinearFilter;
     //textura4.anisotropy = this.renderer.getMaxAnisotropy();
-    var textura5 = loader.load('/imgs/posz.jpg');
-    var textura6 = loader.load('/imgs/negz.jpg');
+    var textura5 = loader.load('./imgs/posz.jpg');
+    var textura6 = loader.load('./imgs/negz.jpg');
 
     var materials = [];
 
