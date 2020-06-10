@@ -410,7 +410,7 @@ class MyScene extends THREE.Scene {
     // Si no se le da punto de mira, apuntará al (0,0,0) en coordenadas del mundo
     // En este caso se declara como   this.atributo   para que sea un atributo accesible desde otros métodos.
     this.spotLight = new THREE.SpotLight(0xffffff, 0.5);
-    this.spotLight.position.set(0, 300, 0);
+    this.spotLight.position.set(0, 600, 0);
     this.spotLight.castShadow = true;
     this.add(this.spotLight);
   }
