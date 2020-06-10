@@ -35,7 +35,7 @@ class Esfera extends Objeto {
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      var posicion_muro = 420;
+      var posicion_muro = 450;
 
       if(y < this.body.shapes[0].radius){
         y = this.body.shapes[0].radius;

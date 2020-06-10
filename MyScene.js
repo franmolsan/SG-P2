@@ -73,21 +73,14 @@ class MyScene extends THREE.Scene {
     // Add boxes
     this.pickableObjects = []
     this.pickedObjectIndex = -1;
+
     this.createBoxes(6);
     this.createPelotas(6);
     this.createLatas(3);
     this.createBarriles(2);
 
-
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
-
-    var spriteMap = new THREE.TextureLoader().load( "./imgs/crosshair.png" );
-    var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap } );
-    spriteMaterial.depthWrite = false;
-    this.sprite = new THREE.Sprite( spriteMaterial );
-
-    this.add( this.sprite );
 
     // para controles y movimiento
     this.controls = new PointerLockControls(this, this.camera, this.playerBody);
@@ -95,18 +88,9 @@ class MyScene extends THREE.Scene {
     this.tiempo = Date.now();
     this.tiempoCannon = this.tiempo;
 
-    /*
-    function actualizaWorld(that){
-     if (that.controls.enabled){
-        that.world.step(1 / 60, ((Date.now() - this.tiempoCannon) / 1000), 10);
-        that.tiempoCannon = Date.now();
-      }
-    }
+  }
 
-    setInterval(actualizaWorld, 16.666667, this)
-    */
-
-
+  createParkour(){
 
   }
 
@@ -239,7 +223,20 @@ class MyScene extends THREE.Scene {
 
     // También se indica dónde se coloca
     this.camera.position.set(0,0,0);
+
+    var spriteMap = new THREE.TextureLoader().load( "./imgs/PixelArt.png" );
+    var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap } );
+    spriteMaterial.depthWrite = false;
+    this.sprite = new THREE.Sprite( spriteMaterial );
+    this.sprite.castShadow = false;
+
+    this.sprite.scale.x = 0.05;
+    this.sprite.scale.y = 0.05;
+    this.sprite.scale.z = 0.05;
+
     this.add(this.camera);
+    this.camera.add( this.sprite );
+    this.sprite.position.set( 0, 0, -1 );
 
   }
 
@@ -447,15 +444,24 @@ class MyScene extends THREE.Scene {
   }
 
   // crear cajas
-  createBoxes(num_boxes){
+  createBoxes(num_boxes,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las cajas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todas las cajas (aleatorio)
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300; //Math.random() * 300 ;
-    var z = Math.random() * 300;//Math.random() * 300;
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_boxes; i++) {
-      var y = 150 + i * 50;
+       y += 50;
 
       var caja = new Caja (x,y,z)
       this.world.addBody(caja.body);
@@ -465,15 +471,25 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  createRubik(num_rubik){
+  createRubik(num_rubik,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las cajas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos los cubos (aleatorio)
     // la coordenada y va aumentando
-    // así aparecerán apiladas
-    var x =  Math.random() * 300;
-    var z = Math.random() * 300;
+    // así aparecerán apilados
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
+
     for (var i = 0; i < num_rubik; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var rubik = new Rubik (x,y,z)
       this.world.addBody(rubik.body);
@@ -483,15 +499,24 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  createDado(num_dados){
+  createDado(num_dados,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las cajas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos los dados (aleatorio)
     // la coordenada y va aumentando
-    // así aparecerán apiladas
-    var x =  Math.random() * 300;
-    var z = Math.random() * 300;
+    // así aparecerán apilados
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_dados; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var dado = new Dado (x,y,z)
       this.world.addBody(dado.body);
@@ -502,15 +527,24 @@ class MyScene extends THREE.Scene {
   }
 
   // crear pelotas
-  createPelotas(num_pelotas){
+  createPelotas(num_pelotas,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las pelotas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos las pelotas (aleatorio)
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_pelotas; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var p = new Pelota (x,y,z)
       this.world.addBody(p.body);
@@ -520,15 +554,24 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  createTierras(num_tierras){
+  createTierras(num_tierras,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las pelotas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos las Tierras (aleatorio)
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_tierras; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var p = new Tierra (x,y,z)
       this.world.addBody(p.body);
@@ -538,15 +581,24 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  createNaranjas(num_naranjas){
+  createNaranjas(num_naranjas,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las pelotas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos las naranjas (aleatorio)
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_naranjas; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var p = new Naranja (x,y,z)
       this.world.addBody(p.body);
@@ -557,15 +609,24 @@ class MyScene extends THREE.Scene {
   }
 
   // crear latas
-  createLatas(num_latas){
+  createLatas(num_latas,x,y,z){
 
-    // las coordenadas x,z son iguales para todas las latas
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos las latas (aleatorio)
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_latas; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var cyl = new Lata (x,y,z)
       this.world.addBody(cyl.body);
@@ -576,12 +637,24 @@ class MyScene extends THREE.Scene {
   }
 
   // crear barriles
-  createBarriles(num_barriles){
+  createBarriles(num_barriles,x,y,z){
 
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos los barriles (aleatorio)
+    // la coordenada y va aumentando
+    // así aparecerán apilados
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_barriles; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var cyl = new Barril (x,y,z)
       this.world.addBody(cyl.body);
@@ -592,12 +665,24 @@ class MyScene extends THREE.Scene {
   }
 
   // crear Troncos
-  createTroncos(num_troncos){
+  createTroncos(num_troncos,x,y,z){
 
-    var x =  Math.random() * 300 ;
-    var z =  Math.random() * 300;
+    // Si no definen las coordenadas x, z
+    // serán iguales para todos los troncos (aleatorio)
+    // la coordenada y va aumentando
+    // así aparecerán apilados
+    if (x === undefined){
+      x = Math.random() * 300
+    }
+    if (y === undefined){
+      y = 150
+    }
+    if (z === undefined){
+      z = Math.random() * 300
+    }
+
     for (var i = 0; i < num_troncos; i++) {
-      var y = 150 + i * 50;
+      y += 50;
 
       var cyl = new Tronco (x,y,z)
       this.world.addBody(cyl.body);
@@ -664,19 +749,7 @@ class MyScene extends THREE.Scene {
    // We must add the contact materials to the this.world
    this.world.addContactMaterial(physicsContactMaterial);
 
-   // Create a sphere
-   var mass = 100;
-   var radio = 15;
-   var sphereShape = new CANNON.Sphere(radio);
-   this.playerBody = new CANNON.Body({ mass: mass , shape: sphereShape});
-   //this.playerBody.addShape(sphereShape);
-   this.playerBody.position.set(0, 30, 0);
-   this.playerBody.linearDamping = 0.7;
-   this.playerBody.angularDamping = 0.7;
-   this.playerBody.allowSleep = false;
-   this.world.addBody(this.playerBody);
-
-   // Create a plane
+   // Crear el suelo
    var groundShape = new CANNON.Plane();
    var groundBody = new CANNON.Body({ mass: 0 });
    groundBody.addShape(groundShape);
@@ -684,52 +757,57 @@ class MyScene extends THREE.Scene {
      new CANNON.Vec3(1, 0, 0),
      -Math.PI / 2
    );
-   //groundBody.position.y = -1000;
    this.world.addBody(groundBody);
 
+    // pared -z
+    var paredShapeZmin = new CANNON.Plane();
+    var paredZmin = new CANNON.Body({ mass: 0 });
+    paredZmin.addShape(paredShapeZmin);
+    paredZmin.position.set(0,0,-450);
+    this.world.addBody(paredZmin);
 
-   var pared1Shape = new CANNON.Plane();
-   var pared1Body = new CANNON.Body({ mass: 0 });
-   pared1Body.addShape(pared1Shape);
+    // pared +x
+    // hay que rotarla para que esté en el lugar adecuado
+    // ya que en cannon, los planos "miran" en dirección Z positiva por defecto
+    var paredShapeXmax = new CANNON.Plane();
+    var paredXmax = new CANNON.Body({ mass: 0 });
+    paredXmax.addShape(paredShapeXmax);
+    paredXmax.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),-Math.PI/2);
+    paredXmax.position.set(450,0,0);
+    this.world.addBody(paredXmax);
 
-   pared1Body.position.z = -420;
-   pared1Body.position.y = 0;
+    // pared +Z
+    // rotamos la pared en el eje Y
+    // ya que todo lo que hay "debajo" del plano es sólido
+    var paredShapeZmax = new CANNON.Plane();
+    var paredZmax = new CANNON.Body({ mass: 0 });
+    paredZmax.addShape(paredShapeZmax);
+    paredZmax.position.set(0,0,450);
+    paredZmax.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),Math.PI);
+    this.world.addBody(paredZmax);
 
-   this.world.addBody(pared1Body);
+    // pared -X
+    // al igual que la anterior, es necesario rotarla en el eje Y
+    // ya que en cannon todo lo que hay "debajo" del plano es sólido
+    var paredShapeXmin = new CANNON.Plane();
+    var paredXmin = new CANNON.Body({ mass: 0 });
+    paredXmin.addShape(paredShapeXmin);
+    paredXmin.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0),-3*Math.PI/2);
+    paredXmin.position.set(-450,0,0);
+    this.world.addBody(paredXmin);
 
-/*
-   var pared2Shape = new CANNON.Plane();
-   var pared2Body = new CANNON.Body({ mass: 0 });
-   pared2Body.addShape(pared2Shape);
-   pared1Body.quaternion.setFromAxisAngle(
-     new CANNON.Vec3(0, 1, 0),
-     -Math.PI / 2
-   );
-   pared2Body.position.x = -420;
-   this.world.addBody(pared2Body);
-*/
-   var pared3Shape = new CANNON.Plane();
-   var pared3Body = new CANNON.Body({ mass: 0 });
-   pared3Body.addShape(pared3Shape);
-   //pared3Body.position.z = 420;
-   pared3Body.position.z = -420;
-   pared3Body.position.y = 0;
-   pared3Body.quaternion.setFromAxisAngle(
-     new CANNON.Vec3(0, 0, 1),
-     -Math.PI/2
-   );
-   this.world.addBody(pared3Body);
-/*
-   var pared4Shape = new CANNON.Plane();
-   var pared4Body = new CANNON.Body({ mass: 0 });
-   pared4Body.addShape(pared4Shape);
-   pared1Body.quaternion.setFromAxisAngle(
-     new CANNON.Vec3(0, 1, 0),
-     -Math.PI / 2
-   );
-   pared4Body.position.x = 420;
-   this.world.addBody(pared4Body);
-*/
+
+    // Crear una esfera (el cuerpo del personaje)
+    var mass = 100;
+    var radio = 15;
+    var sphereShape = new CANNON.Sphere(radio);
+    this.playerBody = new CANNON.Body({ mass: mass , shape: sphereShape});
+    this.playerBody.position.set(0, 30, 0);
+    this.playerBody.linearDamping = 0.7;
+    this.playerBody.angularDamping = 0.7;
+    this.playerBody.allowSleep = false;
+    this.world.addBody(this.playerBody);
+
  }
 
 
@@ -750,16 +828,18 @@ class MyScene extends THREE.Scene {
     var dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
 
-    this.sprite.position.x = this.controls.getObject().position.x + dir.x * 1; //window.innerWidth/2
-    this.sprite.position.y =  this.controls.getObject().position.y + dir.y * 1; //window.Height/2
+    /*
+    this.sprite.position.x = this.controls.getObject().position.x + dir.x * 1;
+    this.sprite.position.y =  this.controls.getObject().position.y + dir.y * 1;
     this.sprite.position.z = this.controls.getObject().position.z + dir.z * 1;
+    */
     //console.log(this.sprite)
 
     //this.tiempo = Date.now();
 
     if (this.controls.enabled) {
       this.world.step(1 / 60)
-      //this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10);
+      //this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10)
 
       if (this.applicationMode === Estado.OBJECT_PICKED){
 

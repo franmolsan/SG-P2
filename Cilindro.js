@@ -43,7 +43,7 @@ class Cilindro extends Objeto {
   followPlayer(x, y, z){
     if (this.seleccionado){
 
-      var posicion_muro = 420;
+      var posicion_muro = 450;
 
       if(y < this.radio_base * this.size){
         y = this.radio_base * this.size;
