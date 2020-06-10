@@ -74,10 +74,14 @@ class MyScene extends THREE.Scene {
     this.pickableObjects = []
     this.pickedObjectIndex = -1;
 
+    /*
     this.createBoxes(6);
     this.createPelotas(6);
     this.createLatas(3);
     this.createBarriles(2);
+    */
+
+    this.createParkour();
 
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
@@ -91,7 +95,8 @@ class MyScene extends THREE.Scene {
   }
 
   createParkour(){
-
+    this.createBoxes(1,50,10,0,false);
+    this.createBoxes(1,70,40,0,false);
   }
 
   pickObject(){
@@ -444,7 +449,7 @@ class MyScene extends THREE.Scene {
   }
 
   // crear cajas
-  createBoxes(num_boxes,x,y,z){
+  createBoxes(num_boxes,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todas las cajas (aleatorio)
@@ -459,19 +464,26 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_boxes; i++) {
-       y += 50;
+       var y_colocacion = y + i*50;
 
-      var caja = new Caja (x,y,z)
+      var caja = new Caja (x,y_colocacion,z)
       this.world.addBody(caja.body);
+
+      if (!sePuedeMover){
+        caja.stop();
+      }
       this.add(caja.mesh);
 
       this.pickableObjects.push(caja);
     }
   }
 
-  createRubik(num_rubik,x,y,z){
+  createRubik(num_rubik,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos los cubos (aleatorio)
@@ -486,20 +498,27 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
 
     for (var i = 0; i < num_rubik; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var rubik = new Rubik (x,y,z)
+      var rubik = new Rubik (x,y_colocacion,z)
       this.world.addBody(rubik.body);
+
+      if (!sePuedeMover){
+        rubik.stop();
+      }
       this.add(rubik.mesh);
 
       this.pickableObjects.push(rubik);
     }
   }
 
-  createDado(num_dados,x,y,z){
+  createDado(num_dados,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos los dados (aleatorio)
@@ -514,12 +533,19 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_dados; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var dado = new Dado (x,y,z)
+      var dado = new Dado (x,y_colocacion,z)
       this.world.addBody(dado.body);
+
+      if (!sePuedeMover){
+        dado.stop();
+      }
       this.add(dado.mesh);
 
       this.pickableObjects.push(dado);
@@ -527,7 +553,7 @@ class MyScene extends THREE.Scene {
   }
 
   // crear pelotas
-  createPelotas(num_pelotas,x,y,z){
+  createPelotas(num_pelotas,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos las pelotas (aleatorio)
@@ -542,19 +568,26 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_pelotas; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var p = new Pelota (x,y,z)
+      var p = new Pelota (x,y_colocacion,z)
       this.world.addBody(p.body);
+
+      if (!sePuedeMover){
+        p.stop();
+      }
       this.add(p.mesh);
 
       this.pickableObjects.push(p);
     }
   }
 
-  createTierras(num_tierras,x,y,z){
+  createTierras(num_tierras,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos las Tierras (aleatorio)
@@ -569,19 +602,26 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_tierras; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var p = new Tierra (x,y,z)
-      this.world.addBody(p.body);
-      this.add(p.mesh);
+      var tierra = new Tierra (x,y_colocacion,z)
+      this.world.addBody(tierra.body);
 
-      this.pickableObjects.push(p);
+      if (!sePuedeMover){
+        tierra.stop();
+      }
+      this.add(tierra.mesh);
+
+      this.pickableObjects.push(tierra);
     }
   }
 
-  createNaranjas(num_naranjas,x,y,z){
+  createNaranjas(num_naranjas,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos las naranjas (aleatorio)
@@ -596,20 +636,27 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_naranjas; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var p = new Naranja (x,y,z)
-      this.world.addBody(p.body);
-      this.add(p.mesh);
+      var naranja = new Naranja (x,y_colocacion,z)
+      this.world.addBody(naranja.body);
 
-      this.pickableObjects.push(p);
+      if (!sePuedeMover){
+        naranja.stop();
+      }
+      this.add(naranja.mesh);
+
+      this.pickableObjects.push(naranja);
     }
   }
 
   // crear latas
-  createLatas(num_latas,x,y,z){
+  createLatas(num_latas,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos las latas (aleatorio)
@@ -624,12 +671,18 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_latas; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var cyl = new Lata (x,y,z)
+      var cyl = new Lata (x,y_colocacion,z)
       this.world.addBody(cyl.body);
+      if (!sePuedeMover){
+        cyl.stop();
+      }
       this.add(cyl.mesh);
 
       this.pickableObjects.push(cyl);
@@ -637,7 +690,7 @@ class MyScene extends THREE.Scene {
   }
 
   // crear barriles
-  createBarriles(num_barriles,x,y,z){
+  createBarriles(num_barriles,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos los barriles (aleatorio)
@@ -652,12 +705,19 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_barriles; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var cyl = new Barril (x,y,z)
+      var cyl = new Barril (x,y_colocacion,z)
       this.world.addBody(cyl.body);
+
+      if (!sePuedeMover){
+        cyl.stop();
+      }
       this.add(cyl.mesh);
 
       this.pickableObjects.push(cyl);
@@ -665,7 +725,7 @@ class MyScene extends THREE.Scene {
   }
 
   // crear Troncos
-  createTroncos(num_troncos,x,y,z){
+  createTroncos(num_troncos,x,y,z,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos los troncos (aleatorio)
@@ -680,12 +740,19 @@ class MyScene extends THREE.Scene {
     if (z === undefined){
       z = Math.random() * 300
     }
+    if (sePuedeMover === undefined){
+      sePuedeMover = true;
+    }
 
     for (var i = 0; i < num_troncos; i++) {
-      y += 50;
+      var y_colocacion = y + i*50; 50;
 
-      var cyl = new Tronco (x,y,z)
+      var cyl = new Tronco (x,y_colocacion,z)
       this.world.addBody(cyl.body);
+
+      if (!sePuedeMover){
+        cyl.stop();
+      }
       this.add(cyl.mesh);
 
       this.pickableObjects.push(cyl);
