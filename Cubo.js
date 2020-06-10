@@ -41,8 +41,26 @@ class Cubo extends Objeto {
   followPlayer(x, y, z){
     if (this.seleccionado){
 
+      var posicion_muro = 420;
+
       if(y < this.body.shapes[0].halfExtents.y){
         y = this.body.shapes[0].halfExtents.y;
+      }
+
+      if(x > -this.body.shapes[0].halfExtents.x+posicion_muro){
+        x = -this.body.shapes[0].halfExtents.x+posicion_muro;
+      }
+
+      if(x < this.body.shapes[0].halfExtents.x-posicion_muro){
+        x = this.body.shapes[0].halfExtents.x-posicion_muro;
+      }
+
+      if(z > -this.body.shapes[0].halfExtents.z+posicion_muro){
+        z = -this.body.shapes[0].halfExtents.z+posicion_muro;
+      }
+
+      if(z < this.body.shapes[0].halfExtents.z-posicion_muro){
+        z = this.body.shapes[0].halfExtents.z-posicion_muro;
       }
 
       this.body.position.x = x;

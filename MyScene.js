@@ -82,6 +82,13 @@ class MyScene extends THREE.Scene {
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
 
+    var spriteMap = new THREE.TextureLoader().load( "./imgs/crosshair.png" );
+    var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap } );
+    spriteMaterial.depthWrite = false;
+    this.sprite = new THREE.Sprite( spriteMaterial );
+
+    this.add( this.sprite );
+
     // para controles y movimiento
     this.controls = new PointerLockControls(this, this.camera, this.playerBody);
     this.add(this.controls.getObject());
@@ -99,12 +106,14 @@ class MyScene extends THREE.Scene {
     setInterval(actualizaWorld, 16.666667, this)
     */
 
+
+
   }
 
   pickObject(){
     var mouse = new THREE.Vector2();
     mouse.x = 0//(event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = 0//1 - 2* (event.clientY /window.innerHeight);
+    mouse.y = 0//1 - 2* (event.clientY /);
 
     var raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mouse,this.camera);
@@ -239,9 +248,9 @@ class MyScene extends THREE.Scene {
 
     // La geometría es una caja con muy poca altura
     var geometryGround = new THREE.BoxGeometry(
-      window.innerWidth,
+      1000,
       0.2,
-      window.innerWidth
+      1000
     );
 
     // El material se hará con una textura de madera
@@ -410,7 +419,7 @@ class MyScene extends THREE.Scene {
     // Si no se le da punto de mira, apuntará al (0,0,0) en coordenadas del mundo
     // En este caso se declara como   this.atributo   para que sea un atributo accesible desde otros métodos.
     this.spotLight = new THREE.SpotLight(0xffffff, 0.5);
-    this.spotLight.position.set(0, 600, 0);
+    this.spotLight.position.set(0, 450, 0);
     this.spotLight.castShadow = true;
     this.add(this.spotLight);
   }
@@ -443,8 +452,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las cajas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
-    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
+    var x =  Math.random() * 300; //Math.random() * 300 ;
+    var z = Math.random() * 300;//Math.random() * 300;
     for (var i = 0; i < num_boxes; i++) {
       var y = 150 + i * 50;
 
@@ -461,8 +470,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las cajas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
-    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
+    var x =  Math.random() * 300;
+    var z = Math.random() * 300;
     for (var i = 0; i < num_rubik; i++) {
       var y = 150 + i * 50;
 
@@ -479,8 +488,8 @@ class MyScene extends THREE.Scene {
     // las coordenadas x,z son iguales para todas las cajas
     // la coordenada y va aumentando
     // así aparecerán apiladas
-    var x =  this.world.bodies[0].position.x //Math.random() * 300 ;
-    var z = this.world.bodies[0].position.z - 60//Math.random() * 300;
+    var x =  Math.random() * 300;
+    var z = Math.random() * 300;
     for (var i = 0; i < num_dados; i++) {
       var y = 150 + i * 50;
 
@@ -677,6 +686,46 @@ class MyScene extends THREE.Scene {
    );
    //groundBody.position.y = -1000;
    this.world.addBody(groundBody);
+
+
+   var pared1Shape = new CANNON.Plane();
+   var pared1Body = new CANNON.Body({ mass: 0 });
+   pared1Body.addShape(pared1Shape);
+
+   pared1Body.position.z = -420;
+   pared1Body.position.y = 0;
+
+   this.world.addBody(pared1Body);
+
+/*
+   var pared2Shape = new CANNON.Plane();
+   var pared2Body = new CANNON.Body({ mass: 0 });
+   pared2Body.addShape(pared2Shape);
+   pared1Body.quaternion.setFromAxisAngle(
+     new CANNON.Vec3(0, 1, 0),
+     -Math.PI / 2
+   );
+   pared2Body.position.x = -420;
+   this.world.addBody(pared2Body);
+*/
+   var pared3Shape = new CANNON.Plane();
+   var pared3Body = new CANNON.Body({ mass: 0 });
+   pared3Body.addShape(pared3Shape);
+   //pared3Body.position.z = 420;
+   pared3Body.position.x = 420;
+   pared3Body.position.y = 0;
+   this.world.addBody(pared3Body);
+/*
+   var pared4Shape = new CANNON.Plane();
+   var pared4Body = new CANNON.Body({ mass: 0 });
+   pared4Body.addShape(pared4Shape);
+   pared1Body.quaternion.setFromAxisAngle(
+     new CANNON.Vec3(0, 1, 0),
+     -Math.PI / 2
+   );
+   pared4Body.position.x = 420;
+   this.world.addBody(pared4Body);
+*/
  }
 
 
@@ -694,6 +743,13 @@ class MyScene extends THREE.Scene {
     // Se muestran o no los ejes según lo que idique la GUI
     this.axis.visible = this.guiControls.axisOnOff;
 
+    var dir = new THREE.Vector3();
+    this.camera.getWorldDirection(dir);
+
+    this.sprite.position.x = this.controls.getObject().position.x + dir.x * 1; //window.innerWidth/2
+    this.sprite.position.y =  this.controls.getObject().position.y + dir.y * 1; //window.Height/2
+    this.sprite.position.z = this.controls.getObject().position.z + dir.z * 1;
+    //console.log(this.sprite)
 
     //this.tiempo = Date.now();
 
@@ -702,8 +758,7 @@ class MyScene extends THREE.Scene {
       //this.world.step(1 / 60, ((Date.now() - this.tiempo) / 1000), 10);
 
       if (this.applicationMode === Estado.OBJECT_PICKED){
-        var dir = new THREE.Vector3();
-        this.camera.getWorldDirection(dir);
+
         var objeto_seleccionado = this.pickableObjects[this.pickedObjectIndex];
 
         objeto_seleccionado.followPlayer( this.controls.getObject().position.x + (70* dir.x ),
