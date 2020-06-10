@@ -40,10 +40,10 @@ class MyScene extends THREE.Scene {
 
     var skyboxGeo = new THREE.BoxGeometry(10000,10000,10000)
     var skybox = new THREE.Mesh(skyboxGeo,materials)
-    skybox.position.y = 1000.1;
+    skybox.position.y = 0;
     this.add(skybox);
 
-    this.sphereBody;
+    this.playerBody;
     // estado de la aplicación: no acción (0)
     this.applicationMode = Estado.NO_ACTION;
 
@@ -83,7 +83,7 @@ class MyScene extends THREE.Scene {
     this.gui = this.createGUI();
 
     // para controles y movimiento
-    this.controls = new PointerLockControls(this, this.camera, this.sphereBody);
+    this.controls = new PointerLockControls(this, this.camera, this.playerBody);
     this.add(this.controls.getObject());
     this.tiempo = Date.now();
     this.tiempoCannon = this.tiempo;
@@ -246,9 +246,9 @@ class MyScene extends THREE.Scene {
 
     // El material se hará con una textura de madera
     var texture = new THREE.TextureLoader().load(
-      "imgs/textura-ajedrezada-grande.jpg"
+      "imgs/old_skybox/negy4096.jpg" //textura-ajedrezada-grande
     );
-    var materialGround = new THREE.MeshPhongMaterial(); // { map: texture }
+    var materialGround = new THREE.MeshPhongMaterial({ map: texture })
 
     // Ya se puede construir el Mesh
     var ground = new THREE.Mesh(geometryGround, materialGround);
@@ -258,6 +258,7 @@ class MyScene extends THREE.Scene {
     ground.position.y = -0.1;
 
     ground.receiveShadow = true;
+    //ground.visible = false;
 
 
     // Que no se nos olvide añadirlo a la escena, que en este caso es  this
@@ -428,6 +429,7 @@ class MyScene extends THREE.Scene {
 
     // para las sombras
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
     // La visualización se muestra en el lienzo recibido
     $(myCanvas).append(renderer.domElement);
@@ -633,7 +635,7 @@ class MyScene extends THREE.Scene {
    this.world.defaultContactMaterial.contactEquationStiffness = 1e9;
    this.world.defaultContactMaterial.contactEquationRelaxation = 4;
 
-   solver.iterations = 5;
+   solver.iterations = 10;
    solver.tolerance = 0.1;
    var split = true;
    if (split) this.world.solver = new CANNON.SplitSolver(solver);
@@ -657,13 +659,13 @@ class MyScene extends THREE.Scene {
    var mass = 100;
    var radio = 15;
    var sphereShape = new CANNON.Sphere(radio);
-   this.sphereBody = new CANNON.Body({ mass: mass , shape: sphereShape});
-   //this.sphereBody.addShape(sphereShape);
-   this.sphereBody.position.set(0, 30, 0);
-   this.sphereBody.linearDamping = 0.9;
-   this.sphereBody.angularDamping = 0.9;
-   this.sphereBody.allowSleep = false;
-   this.world.addBody(this.sphereBody);
+   this.playerBody = new CANNON.Body({ mass: mass , shape: sphereShape});
+   //this.playerBody.addShape(sphereShape);
+   this.playerBody.position.set(0, 30, 0);
+   this.playerBody.linearDamping = 0.7;
+   this.playerBody.angularDamping = 0.7;
+   this.playerBody.allowSleep = false;
+   this.world.addBody(this.playerBody);
 
    // Create a plane
    var groundShape = new CANNON.Plane();

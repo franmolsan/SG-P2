@@ -15,7 +15,7 @@ class Cilindro extends Objeto {
         cylinderGeometry.rotateX(Math.PI/2); // rotarlo para que coincida con el Cilindro de cannon
 
         this.body= new CANNON.Body({ mass: masa, shape: shape });
-        this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
+        //this.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI/2);
 
         this.body.linearDamping = 0.5;
         this.body.angularDamping = 0.5;

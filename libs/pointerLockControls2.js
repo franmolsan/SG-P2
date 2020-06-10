@@ -3,9 +3,9 @@ import { Estado } from "../estados.js";
 
 var PointerLockControls = function ( scene, camera, cannonBody ) {
 
-    var eyeYPos = 30; // eyes are 2 meters above the ground
-    var velocityFactor = 10;
-    var jumpVelocity = 200;
+    var eyeYPos = 30; // los ojos están en la posición (0,30,0)
+    var velocityFactor = 5; // 10
+    var jumpVelocity = 175; // 200
     var scope = this;
 
     var pitchObject = new THREE.Object3D();
