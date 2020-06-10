@@ -98,6 +98,8 @@ class MyScene extends THREE.Scene {
 
     this.createBarriles(1,180, 40, -100, 1.5, false);
     this.createBarriles(1,180, 60, -150, 1.25, false);
+
+
   }
 
   pickObject(){
