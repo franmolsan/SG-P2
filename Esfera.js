@@ -63,7 +63,7 @@ class Esfera extends Objeto {
     }
   }
 
-  wheelScale(deltaSize){
+  Scale(deltaSize){
 
     // cambiar el tamaño para escalarlo
     this.size += deltaSize;

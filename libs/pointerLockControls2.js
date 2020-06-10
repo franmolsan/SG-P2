@@ -104,9 +104,12 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
               break;
 
             case 32: // space
-                if (velocity.y < -0.1){
+            /*
+                console.log("velocidad: " + velocity.y )
+                if (velocity.y < -1){
                   canJump = false;
                 }
+                */
                 if ( canJump === true ){
                     velocity.y += jumpVelocity;
                 }
