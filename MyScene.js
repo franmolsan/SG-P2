@@ -712,8 +712,12 @@ class MyScene extends THREE.Scene {
    var pared3Body = new CANNON.Body({ mass: 0 });
    pared3Body.addShape(pared3Shape);
    //pared3Body.position.z = 420;
-   pared3Body.position.x = 420;
+   pared3Body.position.z = -420;
    pared3Body.position.y = 0;
+   pared3Body.quaternion.setFromAxisAngle(
+     new CANNON.Vec3(0, 0, 1),
+     -Math.PI/2
+   );
    this.world.addBody(pared3Body);
 /*
    var pared4Shape = new CANNON.Plane();
