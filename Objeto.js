@@ -34,6 +34,25 @@ class Objeto extends THREE.Object3D {
     this.body.wakeUp();
   }
 
+  Rotate(eje, radianes){
+
+    if (eje === 'X' || eje === 'x'){
+      this.mesh.rotation.x += radianes;
+      this.body.quaternion.setFromEuler(this.mesh.rotation.x, 0, 0);
+    }
+
+    else if (eje === 'Y' || eje === 'y'){
+      this.mesh.rotation.y += radianes;
+      this.body.quaternion.setFromEuler(0, this.mesh.rotation.y, 0);
+    }
+
+    else if (eje === 'Z' || eje === 'z'){
+      this.mesh.rotation.z += radianes;
+      this.body.quaternion.setFromEuler(0, 0, this.mesh.rotation.z);
+    }
+
+  }
+
   update () {
     this.mesh.position.copy(this.body.position);
     this.mesh.quaternion.copy(this.body.quaternion);

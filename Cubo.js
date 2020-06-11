@@ -99,6 +99,6 @@ class Cubo extends Objeto {
 
     this.body.updateBoundingRadius();
     this.body.updateMassProperties();
-
   }
+
 }

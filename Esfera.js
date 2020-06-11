@@ -92,4 +92,5 @@ class Esfera extends Objeto {
     this.body.updateMassProperties();
 
   }
+
 }

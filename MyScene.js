@@ -89,16 +89,43 @@ class MyScene extends THREE.Scene {
   }
 
   createParkour(){
-    this.createBoxes(1,50,12,0, 1.2 ,false);
-    this.createBoxes(1,100,35,0,1.5,false);
-    this.createBoxes(1,180,40,0,1.25,false);
+    this.createCajas(1,50,12,0, 1.2 ,false);
+    this.createCajas(1,100,35,0,1.5,false);
+    this.createCajas(1,180,40,0,1.25,false);
 
+    // Rama izquierda del circuito
     this.createBarriles(1,180, 40, -30, 1.25, false);
-    this.createBarriles(1,180, 40, -50, 1.25, false);
+    this.createBarriles(1,180, 40, -60, 1.25, false);
 
     this.createBarriles(1,180, 40, -100, 1.5, false);
     this.createBarriles(1,180, 60, -150, 1.25, false);
 
+    this.createCajas(1, 180, 20, -200, 2, false)
+    this.createRubik(4, 170, 50, -190, 0.5, true)
+    this.createPelotas(1, 190, 50, -210, 1, true)
+
+    this.createTroncos(1, 180, 55, -250, 2, false)
+    this.pickableObjects[this.pickableObjects.length-1].Rotate('X', Math.PI/2)
+
+    this.createTierras(1, 180, 60, -300, 1, false);
+    this.pickableObjects[this.pickableObjects.length-1].Rotate('Y', -Math.PI/2)
+
+    // Rama derecha del circuito
+    this.createTroncos(1,180, 40, 30, 2, false);
+    this.createTroncos(1,180, 40, 60, 2, false);
+
+    this.createTroncos(1,180, 40, 100, 2, false);
+    this.createBarriles(1,180, 60, 150, 1.25, false);
+
+    this.createCajas(1, 180, 20, 200, 2, false)
+    this.createDados(4, 170, 50, 190, 2, true)
+    this.createNaranjas(1, 190, 50, 210, 1, true)
+
+    this.createLatas(1, 180, 55, 250, 2, false)
+    this.pickableObjects[this.pickableObjects.length-1].Rotate('X', Math.PI/2)
+
+    this.createTierras(1, 180, 60, 300, 1, false);
+    this.pickableObjects[this.pickableObjects.length-1].Rotate('Y', -Math.PI/2)
 
   }
 
@@ -151,6 +178,43 @@ class MyScene extends THREE.Scene {
       object.stop();
     }
   }
+
+  stopAllObjects(){
+    for (var i=0; i<this.pickableObjects.length; i++){
+      this.pickableObjects[i].stop();
+    }
+  }
+
+  startAllObjects(){
+    for (var i=0; i<this.pickableObjects.length; i++){
+      this.pickableObjects[i].start();
+    }
+  }
+
+  rotatePickedObjectX(){
+    // si hemos seleccionado un objecto
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
+      object.Rotate('X', Math.PI/2);
+    }
+  }
+
+  rotatePickedObjectY(){
+    // si hemos seleccionado un objecto
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
+      object.Rotate('Y', Math.PI/2);
+    }
+  }
+
+  rotatePickedObjectZ(){
+    // si hemos seleccionado un objecto
+    if (this.applicationMode === Estado.OBJECT_PICKED) {
+      var object = this.pickableObjects[this.pickedObjectIndex];
+      object.Rotate('Z', Math.PI/2);
+    }
+  }
+
 
   removePickedObject(){
     // si hemos seleccionado un objecto
@@ -292,7 +356,7 @@ class MyScene extends THREE.Scene {
       // Un botón para dejarlo todo en su posición inicial
       // Cuando se pulse se ejecutará esta función.
       this.addBox = function () {
-        that.createBoxes(1);
+        that.createCajas(1);
       }
 
       this.addRubik = function () {
@@ -300,7 +364,7 @@ class MyScene extends THREE.Scene {
       }
 
       this.addDado = function () {
-        that.createDado(1);
+        that.createDados(1);
       }
 
       this.addPelota = function () {
@@ -452,7 +516,7 @@ class MyScene extends THREE.Scene {
   }
 
   // crear cajas
-  createBoxes(num_boxes,x,y,z,escala,sePuedeMover){
+  createCajas(num_boxes,x,y,z,escala,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todas las cajas (aleatorio)
@@ -536,7 +600,7 @@ class MyScene extends THREE.Scene {
     }
   }
 
-  createDado(num_dados,x,y,z,escala,sePuedeMover){
+  createDados(num_dados,x,y,z,escala,sePuedeMover){
 
     // Si no definen las coordenadas x, z
     // serán iguales para todos los dados (aleatorio)

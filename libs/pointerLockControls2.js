@@ -86,7 +86,7 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
               scene.removePickedObject();
               break;
 
-            case 80: // r
+            case 80: // p
               scene.stopPickedObject();
               break;
 
@@ -102,6 +102,29 @@ var PointerLockControls = function ( scene, camera, cannonBody ) {
             case 84: // t
               scene.throwObject();
               break;
+
+            case 77: // m
+              scene.stopAllObjects();
+              break;
+
+            case 78: // n
+              scene.startAllObjects();
+              break;
+
+            case 49: // 1
+            case 97: // numpad 1
+                scene.rotatePickedObjectX();
+                break;
+
+            case 50: // 2
+            case 98: // numpad 2
+                scene.rotatePickedObjectY();
+                break;
+
+            case 51: // 3
+            case 99: // numpad 3
+                scene.rotatePickedObjectZ();
+                break;
 
             case 32: // space
             /*
