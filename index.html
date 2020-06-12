@@ -6,11 +6,9 @@
     <meta charset="utf-8" />
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <script type="text/javascript" src="libs/three.js"></script>
-    <script type="module" src="libs/pointerLockControls2.js"></script>
+    <script type="module" src="libs/pointerLockControls.js"></script>
     <script type="text/javascript" src="libs/jquery.js"></script>
     <script type="text/javascript" src="libs/dat.gui.js"></script>
-    <script type="text/javascript" src="libs/TrackballControls.js"></script>
-    <script type="text/javascript" src="libs/threejs-gui-crosshair.js"></script>
     <script src="libs/Tween.js"></script>
     <script src="libs/cannon.js"></script>
     <script type="text/javascript" src="Objeto.js"></script>
@@ -78,7 +76,15 @@
 				<br /><br />
 				Movimiento: WASD / Flechas Direccionales <br/>
 				Saltar: espacio<br/>
-				Mirar alrededor: moviendo el ratón
+				Mirar alrededor: moviendo el ratón<br/>
+        E: seleccionar/soltar un objeto<br/>
+        T: empujar el objeto seleccionado<br/>
+        1/2/3: rotar el objeto seleccionado en el eje X/Y/Z<br/>
+        Rueda del ratón: escalar el objeto seleccionado<br/>
+        P: parar las físicas para el objeto seleccionado (luego hay que soltarlo con la E)<br/>
+        M: parar las físicas para todos los objetos de la escena<br/>
+        N: reanudar las físicas de todos los objetos de la escena<br/>
+
 			</div>
 
 		</div>

@@ -1,10 +1,10 @@
+// importar controles
+import { PointerLockControls } from "./libs/pointerLockControls.js";
+
 // La clase fachada del modelo
 /**
  * Usaremos una clase derivada de la clase Scene de Three.js para llevar el control de la escena y de todo lo que ocurre en ella.
  */
-import { PointerLockControls } from "./libs/pointerLockControls2.js";
-import { Estado } from "./estados.js";
-
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
@@ -45,11 +45,7 @@ class MyScene extends THREE.Scene {
 
     this.playerBody;
     // estado de la aplicación: no acción (0)
-    this.applicationMode = Estado.NO_ACTION;
-
-    // fondo
-    //this.background = new THREE.Color( 0x000000 );
-
+    this.applicationMode = MyScene.NO_ACTION;
 
 
     // Construimos los distinos elementos que tendremos en la escena
@@ -66,6 +62,7 @@ class MyScene extends THREE.Scene {
 
     // Y unos ejes. Imprescindibles para orientarnos sobre dónde están las cosas
     this.axis = new THREE.AxesHelper(5);
+    this.axis.visible = false;
     this.add(this.axis);
 
     this.iniciarCanon();
@@ -76,6 +73,9 @@ class MyScene extends THREE.Scene {
 
     // añadir el circuito
     this.createParkour();
+
+    this.createCajas(4,50,50,-200,1,true);
+    this.createCajas(4,50,50,200,1,true);
 
     // Se añade a la gui los controles para manipular los elementos de esta clase
     this.gui = this.createGUI();
@@ -129,13 +129,22 @@ class MyScene extends THREE.Scene {
 
   }
 
+  pickOrUnpickObject(){
+    if(this.applicationMode === MyScene.OBJECT_PICKED){
+      this.unpickObject();
+    }
+    else {
+      this.pickObject();
+    }
+  }
+
   pickObject(){
-    var mouse = new THREE.Vector2();
-    mouse.x = 0//(event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = 0//1 - 2* (event.clientY /);
+    var centro = new THREE.Vector2();
+    centro.x = 0;
+    centro.y = 0;
 
     var raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse,this.camera);
+    raycaster.setFromCamera(centro,this.camera);
 
     var pickableMesh = [];
     for (var i = 0; i < this.pickableObjects.length; i++) {
@@ -157,7 +166,7 @@ class MyScene extends THREE.Scene {
       // var selectedPoint = new THREE.Vector3(pickedObjects[0].point);
       this.pickedObjectIndex = indice;
       this.pickableObjects[indice].seleccionado = true;
-      this.applicationMode = Estado.OBJECT_PICKED;
+      this.applicationMode = MyScene.OBJECT_PICKED;
 
       if (this.pickableObjects[indice].body.allowSleep){
           this.pickableObjects[indice].start();
@@ -168,12 +177,12 @@ class MyScene extends THREE.Scene {
   unpickObject(){
     this.pickableObjects[this.pickedObjectIndex].seleccionado = false;
     this.pickedObjectIndex = -1;
-    this.applicationMode = Estado.NO_ACTION;
+    this.applicationMode = MyScene.NO_ACTION;
   }
 
   stopPickedObject(){
     // si hemos seleccionado un objecto
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       var object = this.pickableObjects[this.pickedObjectIndex];
       object.stop();
     }
@@ -193,7 +202,7 @@ class MyScene extends THREE.Scene {
 
   rotatePickedObjectX(){
     // si hemos seleccionado un objecto
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       var object = this.pickableObjects[this.pickedObjectIndex];
       object.Rotate('X', Math.PI/2);
     }
@@ -201,7 +210,7 @@ class MyScene extends THREE.Scene {
 
   rotatePickedObjectY(){
     // si hemos seleccionado un objecto
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       var object = this.pickableObjects[this.pickedObjectIndex];
       object.Rotate('Y', Math.PI/2);
     }
@@ -209,7 +218,7 @@ class MyScene extends THREE.Scene {
 
   rotatePickedObjectZ(){
     // si hemos seleccionado un objecto
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       var object = this.pickableObjects[this.pickedObjectIndex];
       object.Rotate('Z', Math.PI/2);
     }
@@ -218,12 +227,12 @@ class MyScene extends THREE.Scene {
 
   removePickedObject(){
     // si hemos seleccionado un objecto
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       this.removeObject(this.pickedObjectIndex);
     }
 
     this.pickedObjectIndex = -1;
-    this.applicationMode = Estado.NO_ACTION;
+    this.applicationMode = MyScene.NO_ACTION;
   }
 
   removeObject(index){
@@ -255,7 +264,7 @@ class MyScene extends THREE.Scene {
   }
 
   wheelScaleObject(y){
-      if (this.applicationMode === Estado.OBJECT_PICKED) {
+      if (this.applicationMode === MyScene.OBJECT_PICKED) {
         var deltaSize = 0;
         // scroll hacia arriba
         if (y > 0){
@@ -270,7 +279,7 @@ class MyScene extends THREE.Scene {
   }
 
   throwObject(){
-    if (this.applicationMode === Estado.OBJECT_PICKED) {
+    if (this.applicationMode === MyScene.OBJECT_PICKED) {
       var object = this.pickableObjects[this.pickedObjectIndex];
 
       var dir = new THREE.Vector3();
@@ -296,7 +305,9 @@ class MyScene extends THREE.Scene {
     // También se indica dónde se coloca
     this.camera.position.set(0,0,0);
 
-    var spriteMap = new THREE.TextureLoader().load( "./imgs/PixelArt.png" );
+    // añadimos el crosshair (cruceta/mirilla) a la cámara
+    // de esta forma siempre la veremos en el centro
+    var spriteMap = new THREE.TextureLoader().load( "./imgs/Crosshair.png" );
     var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap } );
     spriteMaterial.depthWrite = false;
     this.sprite = new THREE.Sprite( spriteMaterial );
@@ -306,9 +317,10 @@ class MyScene extends THREE.Scene {
     this.sprite.scale.y = 0.05;
     this.sprite.scale.z = 0.05;
 
-    this.add(this.camera);
+
+    this.sprite.position.set( 0, 0, -1 ); // posicionar el crosshair
     this.camera.add( this.sprite );
-    this.sprite.position.set( 0, 0, -1 );
+    this.add(this.camera);
 
   }
 
@@ -324,7 +336,7 @@ class MyScene extends THREE.Scene {
 
     // El material se hará con una textura de madera
     var texture = new THREE.TextureLoader().load(
-      "imgs/old_skybox/negy4096.jpg" //textura-ajedrezada-grande
+      "imgs/suelo.jpg" //textura-ajedrezada-grande
     );
     var materialGround = new THREE.MeshPhongMaterial({ map: texture })
 
@@ -352,10 +364,10 @@ class MyScene extends THREE.Scene {
     this.guiControls = new function () {
 
       this.lightIntensity = 0.5;
-      this.axisOnOff = true;
-      // Un botón para dejarlo todo en su posición inicial
-      // Cuando se pulse se ejecutará esta función.
-      this.addBox = function () {
+      this.axisOnOff = false;
+
+      // Botones para añadir objetos
+      this.addCaja = function () {
         that.createCajas(1);
       }
 
@@ -391,7 +403,8 @@ class MyScene extends THREE.Scene {
         that.createTroncos(1);
       }
 
-      this.eraseBox = function () {
+      // Botones para eliminar objetos
+      this.eraseCaja = function () {
         that.removeAllObjectsOfType("caja");
       }
 
@@ -445,9 +458,12 @@ class MyScene extends THREE.Scene {
       .add(this.guiControls, "lightIntensity", 0, 1, 0.1)
       .name("Intensidad de la Luz : ");
 
+    // Y otro para mostrar u ocultar los ejes
+    folder.add (this.guiControls, 'axisOnOff').name ('Mostrar ejes : ');
+
     var folderCreacion = gui.addFolder("Crear figuras");
 
-    folderCreacion.add (this.guiControls, 'addBox').name ('Añadir caja');
+    folderCreacion.add (this.guiControls, 'addCaja').name ('Añadir caja');
     folderCreacion.add (this.guiControls, 'addRubik').name ('Añadir rubik');
     folderCreacion.add (this.guiControls, 'addDado').name ('Añadir dado');
     folderCreacion.add (this.guiControls, 'addPelota').name ('Añadir pelota');
@@ -460,7 +476,7 @@ class MyScene extends THREE.Scene {
 
     var folderEliminar = gui.addFolder("Eliminar figuras");
 
-    folderEliminar.add (this.guiControls, 'eraseBox').name ('Eliminar cajas');
+    folderEliminar.add (this.guiControls, 'eraseCaja').name ('Eliminar cajas');
     folderEliminar.add (this.guiControls, 'eraseRubik').name ('Eliminar rubik')
     folderEliminar.add (this.guiControls, 'eraseDado').name ('Eliminar dado')
     folderEliminar.add (this.guiControls, 'erasePelota').name ('Eliminar pelotas');
@@ -1020,14 +1036,6 @@ class MyScene extends THREE.Scene {
     var dir = new THREE.Vector3();
     this.camera.getWorldDirection(dir);
 
-    /*
-    this.sprite.position.x = this.controls.getObject().position.x + dir.x * 1;
-    this.sprite.position.y =  this.controls.getObject().position.y + dir.y * 1;
-    this.sprite.position.z = this.controls.getObject().position.z + dir.z * 1;
-    */
-    //console.log(this.sprite)
-
-    //this.tiempo = Date.now();
 
     if (this.controls.enabled) {
       // simular el mundo físico (cannon)
@@ -1043,7 +1051,7 @@ class MyScene extends THREE.Scene {
 
 
       // si hemos cogido un objeto, que nos siga
-      if (this.applicationMode === Estado.OBJECT_PICKED){
+      if (this.applicationMode === MyScene.OBJECT_PICKED){
 
         var objeto_seleccionado = this.pickableObjects[this.pickedObjectIndex];
 
@@ -1068,6 +1076,9 @@ class MyScene extends THREE.Scene {
 
 }
 
+// Estado de la aplicación
+MyScene.NO_ACTION = 0;
+MyScene.OBJECT_PICKED = 1;
 
 /// La función   main
 $(function () {
@@ -1080,6 +1091,7 @@ $(function () {
   // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
   window.addEventListener("resize", () => scene.onWindowResize());
 
+  // pointerlock (controles)
   var blocker = document.getElementById("blocker");
   var instructions = document.getElementById("instructions");
 
@@ -1143,55 +1155,13 @@ $(function () {
           element.mozRequestPointerLock ||
           element.webkitRequestPointerLock;
 
-        if (/Firefox/i.test(navigator.userAgent)) {
-          var fullscreenchange = function (event) {
-            if (
-              document.fullscreenElement === element ||
-              document.mozFullscreenElement === element ||
-              document.mozFullScreenElement === element
-            ) {
-              document.removeEventListener(
-                "fullscreenchange",
-                fullscreenchange
-              );
-              document.removeEventListener(
-                "mozfullscreenchange",
-                fullscreenchange
-              );
-
-              element.requestPointerLock();
-            }
-          };
-
-          document.addEventListener(
-            "fullscreenchange",
-            fullscreenchange,
-            false
-          );
-          document.addEventListener(
-            "mozfullscreenchange",
-            fullscreenchange,
-            false
-          );
-
-          element.requestFullscreen =
-            element.requestFullscreen ||
-            element.mozRequestFullscreen ||
-            element.mozRequestFullScreen ||
-            element.webkitRequestFullscreen;
-
-          element.requestFullscreen();
-        } else {
-          element.requestPointerLock();
-        }
+        element.requestPointerLock();
       },
       false
     );
   } else {
-    instructions.innerHTML =
-      "Your browser doesn't seem to support Pointer Lock API";
+    instructions.innerHTML = "Su navegador no soporta la API Pointer Lock";
   }
-
 
   // Que no se nos olvide, la primera visualización.
   scene.update();
