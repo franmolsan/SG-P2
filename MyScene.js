@@ -84,7 +84,6 @@ class MyScene extends THREE.Scene {
     this.controls = new PointerLockControls(this, this.camera, this.playerBody);
     this.add(this.controls.getObject());
     this.tiempo = Date.now();
-    this.tiempoCannon = this.tiempo;
 
   }
 
