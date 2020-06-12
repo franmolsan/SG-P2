@@ -1,5 +1,5 @@
 // importar controles
-import { PointerLockControls } from "./libs/pointerLockControls.js";
+import { PointerLockControls } from "./libs/PointerLockControls.js";
 
 // La clase fachada del modelo
 /**
